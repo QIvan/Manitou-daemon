@@ -7,14 +7,9 @@ package net;
 import com.sun.mail.imap.IMAPSSLStore;
 import com.sun.mail.pop3.POP3SSLStore;
 import com.sun.mail.smtp.SMTPSSLTransport;
+
+import javax.mail.*;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.Transport;
-import javax.mail.URLName;
 
 /**
  *

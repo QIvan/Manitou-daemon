@@ -1,23 +1,16 @@
 package db;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.Message;
-
-import db.ConnectionDB;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Date;
-import javax.mail.Address;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MailMessage {
 
@@ -35,10 +28,10 @@ public class MailMessage {
         }
 
 	/**
-	 * @param args
-	 * @throws Exception
+	 * @param msg looks like a message
+	 * @throws Exception looks like SQLException
 	 */
-	public static void parseMsg(Message msg) throws Exception 
+	public static void parseMsg(Message msg) throws Exception
         {
             //conn = new ConnectionDB("org.sqlite.JDBC", "jdbc:sqlite:MsgDB");
             conn = new ConnectionDB("org.postgresql.Driver", "jdbc:postgresql:test");
