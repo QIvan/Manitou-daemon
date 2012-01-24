@@ -7,6 +7,9 @@ package net;
 import org.junit.*;
 
 import javax.mail.MessagingException;
+import javax.mail.Session;
+
+import java.util.Properties;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -35,11 +38,13 @@ public class gNetSettingsTest
     @Before
     public void setUp()
     {
+        Session.getDefaultInstance(new Properties()).setDebug(true);
     }
     
     @After
     public void tearDown()
     {
+        Session.getDefaultInstance(new Properties()).setDebug(false);
     }
 
     /**

@@ -3,27 +3,13 @@
  * and open the template in the editor.
  */
 package net;
-import com.sun.mail.imap.IMAPMessage;
-import com.sun.mail.imap.IMAPNestedMessage;
-import java.util.ArrayList;
-import java.util.Properties;
-
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.URLName;
-import javax.mail.internet.MimeMultipart;
 import db.MailMessage;
 
-import com.sun.mail.imap.protocol.FLAGS;
-import com.sun.mail.pop3.POP3SSLStore;
-import com.sun.mail.smtp.SMTPSSLTransport;
-import javax.mail.Address;
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Store;
 import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 
 /**
  *
@@ -41,9 +27,10 @@ public class Daemon
 
 
         try {
-            MailMessage mm = new MailMessage();
-            ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
-            System.out.print(messagesToSend);
+            Store store = gNetSettings.getInstance().getPopConnect();
+//            MailMessage mm = new MailMessage();
+            /*ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
+            System.out.print(messagesToSend);*/
             //msg.writeTo(System.out);
             /*System.out.print("\n\n");
             Store store = gNetSettings.getInstance().getPopConnect();

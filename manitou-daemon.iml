@@ -7,11 +7,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/message/sql" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.6 openJDK" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="javax-mail" level="application" />
-    <orderEntry type="library" scope="TEST" name="junit4" level="application" />
-    <orderEntry type="library" scope="RUNTIME" name="postgresql-jdbc" level="application" />
+    <orderEntry type="library" name="mail" level="project" />
+    <orderEntry type="library" name="postgresql-9.1-901.jdbc4" level="project" />
+    <orderEntry type="library" name="junit4" level="project" />
   </component>
 </module>
 

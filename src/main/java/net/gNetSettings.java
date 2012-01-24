@@ -9,6 +9,7 @@ import com.sun.mail.imap.IMAPStore;
 import com.sun.mail.pop3.POP3SSLStore;
 import com.sun.mail.pop3.POP3Store;
 import com.sun.mail.smtp.SMTPSSLTransport;
+import com.sun.mail.smtp.SMTPTransport;
 
 import javax.mail.*;
 import java.util.Properties;
@@ -77,16 +78,15 @@ public class gNetSettings
        {
            if (popConnect == null)
            {
-               Session session = Session.getDefaultInstance(new Properties());
-               session.setDebug(true);
                try {
-                   popConnect = new POP3SSLStore(session,
+                   popConnect = new POP3SSLStore(Session.getDefaultInstance(new Properties()),
                                               new URLName(popHost));
                    popConnect.connect(popHost, popPort, username, password);
                }
                catch (MessagingException e)
                {
-                   popConnect = new POP3Store(session, new URLName(popHost));
+                   popConnect = new POP3Store(Session.getDefaultInstance(new Properties()),
+                                              new URLName(popHost));
                    popConnect.connect(popHost, popPort, username, password);
                }
            }
@@ -125,7 +125,7 @@ public class gNetSettings
                }
                catch (MessagingException e)
                {
-                   smtpTransport = new SMTPSSLTransport(Session.getDefaultInstance(new Properties()),
+                   smtpTransport = new SMTPTransport(Session.getDefaultInstance(new Properties()),
                                                                   new URLName(smtpHost));
                    smtpTransport.connect(smtpHost, smtpPort, username, password);
                }
