@@ -17,77 +17,78 @@ public class MailMessage {
 	private static ConnectionDB conn;
 	private static Connection bd;
         
-        public MailMessage()
-        {
-            try {
-                conn = new ConnectionDB("org.postgresql.Driver", "jdbc:postgresql:test");
-                bd = conn.getConnect();
-            } catch (Exception ex) {
-                Logger.getLogger(MailMessage.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    public MailMessage()
+    {
+        try {
+            conn = new ConnectionDB("org.postgresql.Driver", "jdbc:postgresql:test?user=ivan&password=qwertyui");
+            bd = conn.getConnect();
+        } catch (Exception ex) {
+            Logger.getLogger(MailMessage.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public Connection getConnect() throws Exception
+    {
+            return conn.getConnect();
+    }
 
 	/**
+     * Записывает в БД сообщение msg
 	 * @param msg looks like a message
 	 * @throws Exception looks like SQLException
+     * @return возвращает id сообщения из таблицы mail
 	 */
-	public static void parseMsg(Message msg) throws Exception
-        {
-            //conn = new ConnectionDB("org.sqlite.JDBC", "jdbc:sqlite:MsgDB");
-            conn = new ConnectionDB("org.postgresql.Driver", "jdbc:postgresql:test");
-            bd = conn.getConnect();
-            Statement st = bd.createStatement();
+	public int parseMsg(Message msg) throws Exception
+    {
 
-            // XXX Insert Message to different tables ,
-            // здесь вызываем методы для добавление в разные таблицы сообщения msg
-            // описываем их также в данном классе
+        Statement st = bd.createStatement();
 
-            
-            ResultSet rs = st.executeQuery("select * from mail"); 
-            while (rs.next())
-            {
-                for (int i = 1; i < rs.getMetaData().getColumnCount(); i++) {
-                    System.out.println(rs.getString(i));
-                }
-                System.out.println("\n\n");
-            }
-            // rs.close();
+        st.execute("INSERT INTO "
+                   + "mail(sender, sender_fullname, subject, msg_date, sender_date, status, message_id)"
+                   + " VALUES "
+                   + "('manitou.test@gmail.com', 'manitou', 'subject',  now(), now(), 1, '398330e3-945b-4ae9-94f3')");
+
+        ResultSet rs = st.executeQuery("Select mail_id from mail ");
+        rs.next();
+        return rs.getInt(1);
 
 	}
-        
-        
-        public Message createMessageOfDB (int id)
-        {
-            Message result = new MimeMessage(Session.getDefaultInstance(null));
-            try {
-                Statement infoSt = bd.createStatement();
-                ResultSet infoRs = infoSt.executeQuery("Select sender, subject, msg_date from mail where mail_id=" + id);
-                if (infoRs.next())
-                {
-                    result.setFrom(new InternetAddress(infoRs.getString(1)));
-                    result.setSubject(infoRs.getString(2));
-                    result.setSentDate(infoRs.getDate(3));
-                }
-                
-                ;            
-            } catch (Exception ex) {
-                Logger.getLogger(MailMessage.class.getName()).log(Level.SEVERE, null, ex);
+
+
+    /**
+     * @param id id сообщения в БД
+     * @return возвращает сообщение в виде класса Message по переданному id
+     */
+    public Message createMessageOfDB (int id)
+    {
+        Message result = new MimeMessage(Session.getDefaultInstance(null));
+        try {
+            Statement infoSt = bd.createStatement();
+            ResultSet infoRs = infoSt.executeQuery("Select sender, subject, msg_date from mail where mail_id=" + id);
+            if (infoRs.next())
+            {
+                result.setFrom(new InternetAddress(infoRs.getString(1)));
+                result.setSubject(infoRs.getString(2));
+                result.setSentDate(infoRs.getDate(3));
             }
-            return result;
+        } catch (Exception ex) {
+            Logger.getLogger(MailMessage.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return result;
+    }
         
 
 	public ArrayList<Integer> getMessagesToSend()
-        {
-            ArrayList<Integer> result = new ArrayList<Integer>();
-            try {
-                ResultSet mailIDs = bd.prepareStatement("Select mail_id from mail_status").executeQuery();
-                while (mailIDs.next())
-                    result.add(mailIDs.getInt(1));
-            } catch (SQLException ex) {
-                Logger.getLogger(MailMessage.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return result;
+    {
+        ArrayList<Integer> result = new ArrayList<Integer>();
+        try {
+            ResultSet mailIDs = bd.prepareStatement("Select mail_id from mail_status").executeQuery();
+            while (mailIDs.next())
+                result.add(mailIDs.getInt(1));
+        } catch (SQLException ex) {
+            Logger.getLogger(MailMessage.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return result;
+    }
 
 }
