@@ -15,7 +15,6 @@ import javax.mail.*;
 import java.util.Properties;
 
 /**
- *
  * @author ivan
  */
 public class gNetSettings
@@ -41,6 +40,7 @@ public class gNetSettings
 
     private Store popConnect = null;
     private Store imapConnect = null;
+
     public String getPassword()
     {
         return password;
@@ -56,7 +56,7 @@ public class gNetSettings
         return impl;
     }
 
-    private gNetSettings() {   }
+    private gNetSettings() { }
 
     /*public String getHost()
     {
@@ -75,63 +75,68 @@ public class gNetSettings
 
 
     public Store getPopConnect() throws MessagingException
-       {
-           if (popConnect == null)
-           {
-               try {
-                   popConnect = new POP3SSLStore(Session.getDefaultInstance(new Properties()),
-                                              new URLName(popHost));
-                   popConnect.connect(popHost, popPort, username, password);
-               }
-               catch (MessagingException e)
-               {
-                   popConnect = new POP3Store(Session.getDefaultInstance(new Properties()),
-                                              new URLName(popHost));
-                   popConnect.connect(popHost, popPort, username, password);
-               }
-           }
-           return popConnect;
-       }
+    {
+        if (popConnect == null)
+        {
+            try
+            {
+                popConnect = new POP3SSLStore(Session.getDefaultInstance(new Properties()),
+                                         new URLName(popHost));
+                popConnect.connect(popHost, popPort, username, password);
+            }
+            catch (MessagingException e)
+            {
+                popConnect = new POP3Store(Session.getDefaultInstance(new Properties()),
+                                      new URLName(popHost));
+                popConnect.connect(popHost, popPort, username, password);
+            }
+        }
+        return popConnect;
+    }
 
 
-       public Store getImapConnect() throws MessagingException
-       {
-           if (imapConnect == null)
-           {
+    public Store getImapConnect() throws MessagingException
+    {
+        if (imapConnect == null)
+        {
 
-               try {
-                   imapConnect = new IMAPSSLStore(Session.getDefaultInstance(new Properties()),
-                                                  new URLName(imapHost));
-                   imapConnect.connect(imapHost, imapPort, username, password);
-               }
-               catch (MessagingException e)
-               {
-                   imapConnect = new IMAPStore(Session.getDefaultInstance(new Properties()),
-                                                  new URLName(imapHost));
-                   imapConnect.connect(imapHost, imapPort, username, password);
-               }
-           }
-           return imapConnect;
-       }
+            try
+            {
+                imapConnect = new IMAPSSLStore(Session.getDefaultInstance(new Properties()),
+                                         new URLName(imapHost));
+                imapConnect.connect(imapHost, imapPort, username, password);
+            }
+            catch (MessagingException e)
+            {
+                imapConnect = new IMAPStore(Session.getDefaultInstance(new Properties()),
+                                      new URLName(imapHost));
+                imapConnect.connect(imapHost, imapPort, username, password);
+            }
+        }
+        return imapConnect;
+    }
 
-       public Transport getSmtpTransport() throws MessagingException
-       {
-           if (smtpTransport == null)
-           {
-               try {
-                   smtpTransport = new SMTPSSLTransport(Session.getDefaultInstance(new Properties()),
-                                                                                  new URLName(smtpHost));
-                   smtpTransport.connect(smtpHost, smtpPort, username, password);
-               }
-               catch (MessagingException e)
-               {
-                   smtpTransport = new SMTPTransport(Session.getDefaultInstance(new Properties()),
-                                                                  new URLName(smtpHost));
-                   smtpTransport.connect(smtpHost, smtpPort, username, password);
-               }
-           }
-           return smtpTransport;
-       }
+    public Transport getSmtpTransport() throws MessagingException
+    {
+        if (smtpTransport == null)
+        {
+            try
+            {
+                smtpTransport = new SMTPSSLTransport(Session.getDefaultInstance(
+                        new Properties()),
+                                                     new URLName(smtpHost));
+                smtpTransport.connect(smtpHost, smtpPort, username, password);
+            }
+            catch (MessagingException e)
+            {
+                smtpTransport =
+                        new SMTPTransport(Session.getDefaultInstance(new Properties()),
+                                          new URLName(smtpHost));
+                smtpTransport.connect(smtpHost, smtpPort, username, password);
+            }
+        }
+        return smtpTransport;
+    }
 
     @Override
     protected void finalize() throws Throwable
