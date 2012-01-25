@@ -32,6 +32,7 @@ public class MailMessageTest extends TestCase
 
         assertTrue(mailResult.next());
 
+
     }
 
     public void testGetMessagesToSend() throws Exception
