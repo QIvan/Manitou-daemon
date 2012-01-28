@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_manitoud" default="compile.module.manitoud">
+  <dirname property="module.manitoud.basedir" file="${ant.file.module_manitoud}"/>
+  
+  
+  <property name="compiler.args.manitoud" value="${compiler.args}"/>
+  
+  <property name="manitoud.output.dir" value="${module.manitoud.basedir}/out/production/manitoud"/>
+  <property name="manitoud.testoutput.dir" value="${module.manitoud.basedir}/out/test/manitoud"/>
+  
+  <path id="manitoud.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="manitoud.module.production.classpath">
+    <path refid="library.javamail-1.4.4.classpath"/>
+  </path>
+  
+  <path id="manitoud.runtime.production.module.classpath">
+    <pathelement location="${manitoud.output.dir}"/>
+    <path refid="library.javamail-1.4.4.classpath"/>
+  </path>
+  
+  <path id="manitoud.module.classpath">
+    <pathelement location="${manitoud.output.dir}"/>
+    <path refid="library.javamail-1.4.4.classpath"/>
+    <path refid="library.junit4.classpath"/>
+  </path>
+  
+  <path id="manitoud.runtime.module.classpath">
+    <pathelement location="${manitoud.testoutput.dir}"/>
+    <pathelement location="${manitoud.output.dir}"/>
+    <path refid="library.javamail-1.4.4.classpath"/>
+    <path refid="library.junit4.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.manitoud">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.manitoud">
+    <patternset refid="excluded.from.module.manitoud"/>
+  </patternset>
+  
+  <path id="manitoud.module.sourcepath">
+    <dirset dir="${module.manitoud.basedir}">
+      <include name="src/message/sql"/>
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  <path id="manitoud.module.test.sourcepath">
+    <dirset dir="${module.manitoud.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.manitoud" depends="compile.module.manitoud.production,compile.module.manitoud.tests" description="Compile module manitoud"/>
+  
+  <target name="compile.module.manitoud.production" description="Compile module manitoud; production classes">
+    <mkdir dir="${manitoud.output.dir}"/>
+    <javac destdir="${manitoud.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.manitoud}"/>
+      <bootclasspath refid="manitoud.module.bootclasspath"/>
+      <classpath refid="manitoud.module.production.classpath"/>
+      <src refid="manitoud.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.manitoud"/>
+    </javac>
+    
+    <copy todir="${manitoud.output.dir}">
+      <fileset dir="${module.manitoud.basedir}/src/message/sql">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.manitoud.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.manitoud.tests" depends="compile.module.manitoud.production" description="compile module manitoud; test classes" unless="skip.tests">
+    <mkdir dir="${manitoud.testoutput.dir}"/>
+    <javac destdir="${manitoud.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
+      <compilerarg line="${compiler.args.manitoud}"/>
+      <bootclasspath refid="manitoud.module.bootclasspath"/>
+      <classpath refid="manitoud.module.classpath"/>
+      <src refid="manitoud.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.manitoud"/>
+    </javac>
+    
+    <copy todir="${manitoud.testoutput.dir}">
+      <fileset dir="${module.manitoud.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.manitoud" description="cleanup module">
+    <delete dir="${manitoud.output.dir}"/>
+    <delete dir="${manitoud.testoutput.dir}"/>
+  </target>
+</project>
