@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: javamail.jar
+Main-Class: org.manitou.daemon.application.Daemon
+
