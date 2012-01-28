@@ -1,0 +1,24 @@
+ManitouD -- daemon service for manitou mail application
+
+Final manitou architecture looks like:
+
+            mail
+            server
+           (imap/pop3/smtp)
+                \
+                 \
+                  \
+                 manitoud
+                  (Java)
+                 /       \
+                /         \
+               /           \
+              /             \
+           system           DB
+           calls         (sqlite/postgresql)
+           (unix)            /
+               \            /
+                \          /
+                 \        /
+                 Manitou GUI
+                   (Qt app)
