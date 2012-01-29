@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact name="shell">
-    <output-path>$PROJECT_DIR$/out/artifacts/shell</output-path>
-    <root id="root">
-      <element id="dir-copy" path="$PROJECT_DIR$/src/main/shell" />
-    </root>
-  </artifact>
-</component>
