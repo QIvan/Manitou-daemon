@@ -20,22 +20,22 @@ import java.util.Properties;
 public class gNetSettings
 {
     private static gNetSettings impl = null;
-    /*private String popHost = "pop.gmail.com";
+    private String popHost = "pop.gmail.com";
     private int popPort = 995;
     private String imapHost = "imap.gmail.com";
     private int imapPort = 993;
     private String smtpHost = "smtp.gmail.com";
     private int smtpPort = 465;
     private String username = "manitou.mail.test@gmail.com";
-    private String password = "manitou1234";*/
-    private String popHost = "172.25.1.30";
+    private String password = "manitou1234";/**/
+    /*private String popHost = "172.25.1.30";
     private int popPort = 110;
     private String imapHost = "172.25.1.30";
     private int imapPort = 143;
     private String smtpHost = "172.25.1.30";
     private int smtpPort = 25;
     private String username = "i.zemlyansky";
-    private String password = "d dfktyrf[";
+    private String password = "d dfktyrf[";  /**/
 
 
     private Store popConnect = null;

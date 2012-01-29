@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,8 +24,10 @@ public class MailMessage
     {
         try
         {
-            conn = new ConnectionDB("org.postgresql.Driver",
-                                    "jdbc:postgresql:test?user=ivan&password=qwertyui");
+//          conn = new ConnectionDB("org.postgresql.Driver",
+//                                  "jdbc:postgresql:test");
+            conn = new ConnectionDB("org.sqlite.JDBC",
+                                    "jdbc:sqlite:DB/MsgDB");
             bd = conn.getConnect();
         }
         catch (Exception ex)
@@ -63,14 +66,15 @@ public class MailMessage
                        + "mail(sender, subject, msg_date, sender_date, status, message_id)"
                        + " VALUES "
                        + "('" + sender + "', '" + subject + "', '" + sentDate
-                       + "',  now(), 1, '" + messageNumber + "')";
+                       + "', '" + Calendar.getInstance().getTime().toString()
+                       + "', 1, '" + messageNumber + "')";
 
         System.out.println(query);
         st.execute(query);
 
-        ResultSet rs = st.executeQuery("Select mail_id from mail ");
+        ResultSet rs = st.executeQuery("SELECT curr_val FROM Sequence WHERE name='seq_mail_id'");
         rs.next();
-        return rs.getInt(1);
+        return rs.getInt(1)-1;
 
     }
 
