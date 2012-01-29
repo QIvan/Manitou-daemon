@@ -1,5 +1,5 @@
 ManitouD 
-=========
+=======
 Daemon service for manitou mail application
 
 Final manitou architecture looks like:
