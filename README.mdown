@@ -1,7 +1,9 @@
-ManitouD -- daemon service for manitou mail application
+ManitouD !
+=========
+Daemon service for manitou mail application
 
 Final manitou architecture looks like:
-
+-----------------------
             mail
             server
            (imap/pop3/smtp)
@@ -22,3 +24,5 @@ Final manitou architecture looks like:
                  \        /
                  Manitou GUI
                    (Qt app)
+
+
