@@ -1,5 +1,11 @@
 package org.manitou.daemon.application;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import org.manitou.daemon.application.cli.CliParameters;
+
+import java.io.Serializable;
+
 /**
  * this is the main starter class for daemon
  *
@@ -22,8 +28,12 @@ package org.manitou.daemon.application;
  *      4-b: check remote mail
  *      4-c: reread configuration
  *      4-d: we've got new items @ db
+ * 5. Exit codes
+ *      0 -- normal exit
+ *          etc
+ * @see org.manitou.daemon.application.ExitCode
  */
-public class Daemon
+public class Daemon implements Serializable
 {
     private static Daemon ourInstance = new Daemon();
 
@@ -32,17 +42,42 @@ public class Daemon
         return ourInstance;
     }
 
+    public final static String PROGRAM_NAME = "maintoud";
+
     private Daemon()
     {
     }
 
     public static void main(String[] args)
     {
+        final CliParameters parameters = new CliParameters();
+        JCommander jCommander = null;
+        try
+        {
+            jCommander = new JCommander(parameters, args);
+        }
+        catch (ParameterException e)
+        {
+            helpUser(new JCommander(parameters));
+        }
+
+        if (parameters.isNeedHelp())
+        {
+            helpUser(jCommander);
+        }
+
         // looks like we will just delegating logic for now
         net.Daemon.main(args);
 
-        // todo parse args -- use jcommander
         // todo init application
         // todo process lifecycle
     }
+
+    private static void helpUser(final JCommander jCommander)
+    {
+        jCommander.setProgramName(PROGRAM_NAME);
+        jCommander.usage();
+        System.exit(ExitCode.normal.getCode());
+    }
+
 }
