@@ -8,13 +8,8 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Enumeration;
+import java.sql.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -130,15 +125,24 @@ public class MailMessage
         try
         {
             Statement infoSt = bd.createStatement();
-            ResultSet infoRs = infoSt.executeQuery(
+            ResultSet headerRs = infoSt.executeQuery(
                     "Select sender, subject, msg_date from mail where mail_id="
                     + id);
-            if (infoRs.next())
+            if (headerRs.next())
             {
-                result.setFrom(new InternetAddress(infoRs.getString(1)));
-                result.setSubject(infoRs.getString(2));
-                result.setSentDate(infoRs.getDate(3));
+                result.setFrom(new InternetAddress(headerRs.getString(1)));
+                result.setSubject(headerRs.getString(2));
+                result.setSentDate(headerRs.getDate(3));
+                System.out.println("1 - " + headerRs.getString(1) +
+                                   "\n2 - " + headerRs.getString(2) +
+                                   "\n3 - " + headerRs.getString(3));
             }
+
+            ResultSet bodyRs = infoSt.executeQuery(
+                               "Select bodytext from body where mail_id=" + id);
+
+            if (bodyRs.next())
+                result.setText(bodyRs.getString(1));
         }
         catch (Exception ex)
         {

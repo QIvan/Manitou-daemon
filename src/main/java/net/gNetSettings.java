@@ -34,7 +34,7 @@ public class gNetSettings
     private int imapPort = 143;
     private String smtpHost = "172.25.1.30";
     private int smtpPort = 25;
-    private String username = "i.zemlyansky";
+    private String username = "manitou.mail.test";
     private String password = "qwertyui";  /**/
 
 
