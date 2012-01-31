@@ -6,12 +6,15 @@ package net;
 
 import db.MailMessage;
 
+import javax.activation.CommandInfo;
+import javax.activation.DataHandler;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.search.FlagTerm;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Properties;
 
 /**
@@ -22,6 +25,7 @@ import java.util.Properties;
 public class Daemon
 {
     public static final String MAIL_TEXT = "New Mail";
+    public static final String BODY_TEXT = "Body text";
 
     /**
      * @param args the command line arguments
@@ -35,36 +39,48 @@ public class Daemon
             //Создание письма
             Message message = new MimeMessage(session);
             message.setSubject(MAIL_TEXT);
-            message.setText(MAIL_TEXT);				//установка тела сообщения
+            message.setText(BODY_TEXT);				//установка тела сообщения
             Address address = new InternetAddress("manitou@qivan");
             message.setFrom(address);						 //добавление получателя
 
-            Address toAddress = new InternetAddress("manitou.mail.test@gmail.com");
+            Address toAddress = new InternetAddress("i.zemlyansky@qivan");
             message.addRecipient(Message.RecipientType.TO, toAddress);
             message.saveChanges(); // implicit with send()
 
             gNetSettings.getInstance().getSmtpTransport().sendMessage(message, message.getAllRecipients());
             /**/
 
-            Connection db = new MailMessage().getConnect();
+            MailMessage mm = new MailMessage();
             Store pop = gNetSettings.getInstance().getPopConnect();
             Store imap = gNetSettings.getInstance().getImapConnect();
 
             Folder folder = imap.getFolder("INBOX");
-            /*folder.open(Folder.READ_WRITE);             //Здесь помечаются сообщения как прочитанные
-            boolean newMessages = folder.hasNewMessages();
+            folder.open(Folder.READ_WRITE);
 
-            System.out.println("\nIs new message: " + newMessages);
+            System.out.println("\nIs new message: " + folder.hasNewMessages());
             System.out.println("Count new message: " + folder.getNewMessageCount());
-            //folder.setFlags(1, 2, new Flags (Flags.Flag.DELETED), true);
-            System.out.println("Count message in folder:" + folder.getMessageCount() + "\n");*/
+            System.out.println("Count message in folder:" + folder.getMessageCount() + "\n");/**/
 
-            Message[]  messages = getNewMail("imap");
-            printMessages(messages);
-
-            System.out.println("\n\nCount new message: " + messages.length);
+            Message[] unreadMessages = folder.search(
+                    new FlagTerm(new Flags(Flags.Flag.SEEN), false));          //взять все непрочитанные сообщения
+            printMessages(unreadMessages);
 
 
+            for (Message msg : unreadMessages)
+            {
+                mm.parseMsg(msg);
+            }
+
+            /*mm.getConnect().createStatement().execute("Delete from mail;");
+            for (Message msg : messages)
+            {
+                mm.parseMsg(msg);
+            } */
+
+            System.out.println("\n\nCount new message: " + unreadMessages.length);
+
+            folder.setFlags(1, folder.getMessageCount(), new Flags (Flags.Flag.DELETED), true);
+            folder.close(true);
 //            MailMessage mm = new MailMessage();
             /*ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
             System.out.print(messagesToSend);*/
@@ -156,12 +172,34 @@ public class Daemon
     private static void printMessages(Message[] messages) throws
                                                           IOException, MessagingException
     {
+
         for (Message msg : messages)
         {
             System.out.println(msg.getSubject());
-            System.out.println(msg.getContent().toString());
+            final Enumeration allHeaders = msg.getAllHeaders();
+            while (allHeaders.hasMoreElements())
+            {
+                final Header header = (Header) allHeaders.nextElement();
+                System.out.print("Name " + header.getName());
+                System.out.println("\t Value " + header.getValue());
+            }
+            System.out.print(msg.getDisposition());
+            System.out.println(msg.getDescription());
+            //System.out.println((IMAPInputStream)msg.getContent());
+            System.out.print("Body: ");
+            final DataHandler handler = msg.getDataHandler();
+            handler.writeTo(System.out);
+            System.out.println("\n DataHandler: ");
+            System.out.println(handler.getContent().toString());
 
-
+            System.out.println(handler.getContentType());
+            System.out.println(handler.getName());
+            CommandInfo[] allCommands = handler.getAllCommands();
+            for (CommandInfo command : allCommands)
+            {
+                System.out.println(command.getCommandClass());
+                System.out.println(command.toString());
+            }
             System.out.println("\n\n");
         }
     }

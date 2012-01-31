@@ -1,16 +1,20 @@
 package db;
 
+import javax.activation.DataHandler;
+import javax.mail.Header;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,33 +52,70 @@ public class MailMessage
      * @return возвращает id сообщения из таблицы mail
      * @throws Exception looks like SQLException
      */
-    public int parseMsg(Message msg) throws Exception
+    public int parseMsg(Message msg) throws SQLException, MessagingException
     {
-        Statement st = bd.createStatement();
-
         String sender = "";
         String subject = "";
-        String sentDate = new Date().toString();
-        int messageNumber = 0;
+        String messageID = ""; //Mime ID
+        String msgDate = "";
+        String sentDate = Calendar.getInstance().getTime().toString();
 
+        DataHandler dataHandler = msg.getDataHandler();
+        Enumeration allHeaders = msg.getAllHeaders();
+        while (allHeaders.hasMoreElements())
+        {
+            Header header = (Header) allHeaders.nextElement();
+            if (header.getName().equals("Message-ID") )
+                messageID = header.getValue();
+            if (header.getName().equals("Received") )
+            {
+                msgDate = header.getValue();
+                msgDate = msgDate.substring(msgDate.lastIndexOf(";") + 1);
+            }
+
+        }
         try { sender = msg.getFrom()[0].toString(); } catch (Exception e) {}
         try { subject = msg.getSubject(); } catch (Exception e) {}
-        try { sentDate = msg.getSentDate().toString(); } catch (Exception e) {}
-        try { messageNumber = msg.getMessageNumber(); } catch (Exception e) {}
 
-        String query = "INSERT INTO "
-                       + "mail(sender, subject, msg_date, sender_date, status, message_id)"
-                       + " VALUES "
-                       + "('" + sender + "', '" + subject + "', '" + sentDate
-                       + "', '" + Calendar.getInstance().getTime().toString()
-                       + "', 1, '" + messageNumber + "')";
+        int mailID = -1;
+        Statement st = bd.createStatement();
+        st.execute("BEGIN");
+        try {
+            String queryInsert = "INSERT INTO "
+                                 + "mail(sender, subject, msg_date, sender_date, status, message_id)"
+                                 + " VALUES "
+                                 + "('" + sender + "', '" + subject + "', '" + sentDate
+                                 + "',  '" + msgDate + "', 0, '" + messageID + "')";
 
-        System.out.println(query);
-        st.execute(query);
+            System.out.println(queryInsert);
+            st.execute(queryInsert);
 
-        ResultSet rs = st.executeQuery("SELECT curr_val FROM Sequence WHERE name='seq_mail_id'");
-        rs.next();
-        return rs.getInt(1)-1;
+            ResultSet rs = st.executeQuery("SELECT MAX(mail_id) FROM mail");
+            rs.next();
+            mailID = rs.getInt(1);
+
+            String body = "";
+            // TODO getContent() не всегда возвращает тело письма!
+            if (dataHandler.getContentType().startsWith("text/plain"))
+                body = dataHandler.getContent().toString();
+            System.out.println("INSERT INTO body(mail_id, bodytext) VALUES "
+                                + "(" + mailID + " , '" + body + "')");
+            st.execute("INSERT INTO body(mail_id, bodytext) VALUES "
+                        + "(" + mailID + " , '" + body + "')");
+
+
+        }
+        catch (SQLException e)
+        {
+            st.execute("ROLLBACK");
+            throw e;
+        }
+        catch (IOException e)
+        {
+
+        }
+        st.execute("COMMIT");
+        return mailID;
 
     }
 

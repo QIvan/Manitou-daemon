@@ -26,14 +26,13 @@ public class MailMessageTest extends TestCase
         Message message = this.createTestMessage();
         MailMessage mm = new MailMessage();
         int id = mm.parseMsg(message);
+        assertTrue(id != -1);
         System.out.println(id);
 
         Connection db = mm.getConnect();
         ResultSet mailResult = db.createStatement().executeQuery("Select * from mail where mail_id=" + id);
 
         assertTrue(mailResult.next());
-
-
     }
 
     public void testGetMessagesToSend() throws Exception
