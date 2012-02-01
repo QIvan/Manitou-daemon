@@ -25,8 +25,8 @@ public class MailMessage
         {
 //          conn = new ConnectionDB("org.postgresql.Driver",
 //                                  "jdbc:postgresql:test");
-            conn = new ConnectionDB("org.sqlite.JDBC",
-                                    "jdbc:sqlite:DB/MsgDB");
+            conn = ConnectionDB.getInstance("org.sqlite.JDBC",
+                                            "jdbc:sqlite:DB/MsgDB");
             bd = conn.getConnect();
         }
         catch (Exception ex)
@@ -110,6 +110,7 @@ public class MailMessage
 
         }
         st.execute("COMMIT");
+        st.close();
         return mailID;
 
     }
@@ -130,7 +131,9 @@ public class MailMessage
                     + id);
             if (headerRs.next())
             {
-                result.setFrom(new InternetAddress(headerRs.getString(1)));
+                InternetAddress addressTo = new InternetAddress(headerRs.getString(1));
+                result.setFrom(addressTo);
+                result.addRecipient(Message.RecipientType.TO, addressTo);
                 result.setSubject(headerRs.getString(2));
                 result.setSentDate(headerRs.getDate(3));
                 System.out.println("1 - " + headerRs.getString(1) +
@@ -143,6 +146,7 @@ public class MailMessage
 
             if (bodyRs.next())
                 result.setText(bodyRs.getString(1));
+
         }
         catch (Exception ex)
         {
@@ -160,7 +164,8 @@ public class MailMessage
         try
         {
             ResultSet mailIDs = bd.prepareStatement(
-                    "Select mail_id from mail_status").executeQuery();
+                    "Select mail_id from mail where status & 128 = 128"
+                                                    ).executeQuery();
             while (mailIDs.next())
                 result.add(mailIDs.getInt(1));
         }
@@ -172,5 +177,6 @@ public class MailMessage
         }
         return result;
     }
+
 
 }

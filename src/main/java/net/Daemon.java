@@ -9,13 +9,11 @@ import db.MailMessage;
 import javax.activation.CommandInfo;
 import javax.activation.DataHandler;
 import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.mail.search.FlagTerm;
 import java.io.IOException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Properties;
 
 /**
  *
@@ -35,24 +33,35 @@ public class Daemon
 
 
         try {
+            //sendAllPost();
+
+/*
             Session session = Session.getDefaultInstance(new Properties());
             //Создание письма
             Message message = new MimeMessage(session);
             message.setSubject(MAIL_TEXT);
             message.setText(BODY_TEXT);				//установка тела сообщения
-            Address address = new InternetAddress("manitou@qivan");
+            Address address = new InternetAddress("SentTo@qivan");
             message.setFrom(address);						 //добавление получателя
 
-            Address toAddress = new InternetAddress("i.zemlyansky@qivan");
+            Address toAddress = new InternetAddress("manitou.mail.test@gmail.com");
             message.addRecipient(Message.RecipientType.TO, toAddress);
             message.saveChanges(); // implicit with send()
 
             gNetSettings.getInstance().getSmtpTransport().sendMessage(message, message.getAllRecipients());
-            /**/
+/**/
 
             MailMessage mm = new MailMessage();
             Store pop = gNetSettings.getInstance().getPopConnect();
             Store imap = gNetSettings.getInstance().getImapConnect();
+
+
+            Statement st = mm.getConnect().createStatement();
+                        st.executeUpdate(
+                                        "Insert into mail_status values (10, 10)"
+                                        );
+                        st.executeUpdate("UPDATE mail SET status=status | 128");
+            System.out.print("UPDATE mail SET status=status & ~128 where mail_id = 4");
 
             Folder folder = imap.getFolder("INBOX");
             folder.open(Folder.READ_WRITE);
@@ -61,12 +70,18 @@ public class Daemon
             System.out.println("Count new message: " + folder.getNewMessageCount());
             System.out.println("Count message in folder:" + folder.getMessageCount() + "\n");/**/
 
+
+            Message[] messages = folder.getMessages();
+            //printMessages(messages);
+            System.out.println("\n\nCount new message: " + messages.length);
+
+
             Message[] unreadMessages = folder.search(
                     new FlagTerm(new Flags(Flags.Flag.SEEN), false));          //взять все непрочитанные сообщения
             printMessages(unreadMessages);
+            System.out.println("\n\nCount new message: " + unreadMessages.length);
 
-
-            for (Message msg : unreadMessages)
+            /*for (Message msg : unreadMessages)
             {
                 mm.parseMsg(msg);
             }
@@ -77,10 +92,10 @@ public class Daemon
                 mm.parseMsg(msg);
             } */
 
-            System.out.println("\n\nCount new message: " + unreadMessages.length);
 
-            folder.setFlags(1, folder.getMessageCount(), new Flags (Flags.Flag.DELETED), true);
+//            folder.setFlags(1, folder.getMessageCount(), new Flags (Flags.Flag.DELETED), true);
             folder.close(true);
+            imap.close();
 //            MailMessage mm = new MailMessage();
             /*ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
             System.out.print(messagesToSend);*/
@@ -142,33 +157,6 @@ public class Daemon
         }
     }
 
-    private static Message[] getNewMail(String type) throws MessagingException
-    {
-        Message[] result = new Message[0];
-        Store protocol;
-        if (type == "imap")
-            protocol = gNetSettings.getInstance().getImapConnect();
-        else
-            protocol = gNetSettings.getInstance().getPopConnect();
-
-        Folder folder = protocol.getFolder("INBOX");
-
-        System.out.println("Is new mess " + folder.hasNewMessages());
-        System.out.println("Count new message: " + folder.getNewMessageCount());
-        //folder.setFlags(1, 2, new Flags (Flags.Flag.DELETED), true);
-        System.out.println("Count message in folder:" + folder.getMessageCount() + "\n");
-
-        folder.open(Folder.READ_ONLY);
-        if (folder.hasNewMessages())
-        {
-            result = folder.getMessages(folder.getMessageCount() - folder.getNewMessageCount(), folder.getMessageCount());
-        }
-        folder.close(true);
-
-        return result;
-    }
-
-
     private static void printMessages(Message[] messages) throws
                                                           IOException, MessagingException
     {
@@ -204,15 +192,26 @@ public class Daemon
         }
     }
     
-    private void sendAllPost() throws MessagingException
+    private static void sendAllPost() throws Exception
     {
         MailMessage mm = new MailMessage();
         ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
         Transport transport = gNetSettings.getInstance().getSmtpTransport();
+        System.out.println(messagesToSend);
         for (Integer id : messagesToSend) {
             Message message = mm.createMessageOfDB(id);
-            transport.sendMessage(message, message.getAllRecipients());
+            Statement st = mm.getConnect().createStatement();
+            // TODO разобраться с обновлениями статусов!
+            st.executeUpdate(
+                            "UPDATE mail_status SET status=status & ~128 where mail_id = "
+                            + id
+                            );
+            st.executeUpdate("UPDATE mail SET status=status & ~128 where mail_id = "
+                              + id);
+            //transport.sendMessage(message, message.getAllRecipients());
         }
     }
+
+
 }
 

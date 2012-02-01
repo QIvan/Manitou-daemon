@@ -5,16 +5,25 @@ import java.sql.DriverManager;
 
 public class ConnectionDB
 {
-
+    private static ConnectionDB impl;
     private String classForName = "";
     private String driverManager = "";
     private Connection connect;
 
-    public ConnectionDB(String classForName, String driverManager)
+    private ConnectionDB(String classForName, String driverManager)
             throws Exception
     {
         this.setClassForName(classForName);
         this.setDriverManager(driverManager);
+    }
+
+    public static ConnectionDB getInstance(String classForName, String driverManager)
+            throws Exception
+    {
+        if (impl == null)
+            impl = new ConnectionDB(classForName, driverManager);
+
+        return impl;
     }
 
     /**
