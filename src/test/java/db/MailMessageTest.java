@@ -30,7 +30,7 @@ public class MailMessageTest extends TestCase
     public MailMessageTest() throws Exception
     {
         mm = new MailMessage();
-        st = mm.getConnect().createStatement();
+        st = ConnectionDB.createStatement();
     }
 
     public void testParseMsg() throws Exception

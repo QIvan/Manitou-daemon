@@ -4,12 +4,12 @@
  */
 package net;
 
+import db.ConnectionDB;
 import db.MailMessage;
 
 import javax.activation.CommandInfo;
 import javax.activation.DataHandler;
 import javax.mail.*;
-import javax.mail.search.FlagTerm;
 import java.io.IOException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class Daemon
 
 
         try {
-            //sendAllPost();
+            sendAllPost();
 
 /*
             Session session = Session.getDefaultInstance(new Properties());
@@ -49,8 +49,12 @@ public class Daemon
             message.saveChanges(); // implicit with send()
 
             gNetSettings.getInstance().getSmtpTransport().sendMessage(message, message.getAllRecipients());
-/**/
-
+/**/                                      /*
+            MailMessage mm1 = new MailMessage();
+            Statement statement = mm1.getConnect().createStatement();
+            statement.executeUpdate(
+                            "Insert into mail_status values (10, 10)"
+                            );
             MailMessage mm = new MailMessage();
             Store pop = gNetSettings.getInstance().getPopConnect();
             Store imap = gNetSettings.getInstance().getImapConnect();
@@ -60,7 +64,7 @@ public class Daemon
                         st.executeUpdate(
                                         "Insert into mail_status values (10, 10)"
                                         );
-                        st.executeUpdate("UPDATE mail SET status=status | 128");
+           /*             st.executeUpdate("UPDATE mail SET status=status | 128");
             System.out.print("UPDATE mail SET status=status & ~128 where mail_id = 4");
 
             Folder folder = imap.getFolder("INBOX");
@@ -71,7 +75,7 @@ public class Daemon
             System.out.println("Count message in folder:" + folder.getMessageCount() + "\n");/**/
 
 
-            Message[] messages = folder.getMessages();
+            /*Message[] messages = folder.getMessages();
             //printMessages(messages);
             System.out.println("\n\nCount new message: " + messages.length);
 
@@ -94,8 +98,8 @@ public class Daemon
 
 
 //            folder.setFlags(1, folder.getMessageCount(), new Flags (Flags.Flag.DELETED), true);
-            folder.close(true);
-            imap.close();
+//            folder.close(true);
+//            imap.close();
 //            MailMessage mm = new MailMessage();
             /*ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
             System.out.print(messagesToSend);*/
@@ -198,9 +202,9 @@ public class Daemon
         ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
         Transport transport = gNetSettings.getInstance().getSmtpTransport();
         System.out.println(messagesToSend);
+        Statement st = ConnectionDB.createStatement();
         for (Integer id : messagesToSend) {
             Message message = mm.createMessageOfDB(id);
-            Statement st = mm.getConnect().createStatement();
             // TODO разобраться с обновлениями статусов!
             st.executeUpdate(
                             "UPDATE mail_status SET status=status & ~128 where mail_id = "
@@ -210,6 +214,7 @@ public class Daemon
                               + id);
             //transport.sendMessage(message, message.getAllRecipients());
         }
+        st.close();
     }
 
 

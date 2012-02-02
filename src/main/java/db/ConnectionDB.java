@@ -2,60 +2,32 @@ package db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConnectionDB
 {
     private static ConnectionDB impl;
-    private String classForName = "";
-    private String driverManager = "";
+    // ReadMe: for postgreSQL
+    //  "org.postgresql.Driver",
+    //  "jdbc:postgresql:test"
+    private String classForName = "org.sqlite.JDBC";
+    private String driverManager = "jdbc:sqlite:DB/MsgDB";
     private Connection connect;
 
-    private ConnectionDB(String classForName, String driverManager)
-            throws Exception
+    private ConnectionDB()
     {
-        this.setClassForName(classForName);
-        this.setDriverManager(driverManager);
+//        this.setClassForName(classForName);
+//        this.setDriverManager(driverManager);
     }
 
-    public static ConnectionDB getInstance(String classForName, String driverManager)
-            throws Exception
+    public static ConnectionDB getInstance()
     {
         if (impl == null)
-            impl = new ConnectionDB(classForName, driverManager);
+            impl = new ConnectionDB();
 
         return impl;
-    }
-
-    /**
-     * @return the classForName
-     */
-    public String getClassForName()
-    {
-        return classForName;
-    }
-
-    /**
-     * @param classForName the classForName to set
-     */
-    public void setClassForName(String classForName)
-    {
-        this.classForName = classForName;
-    }
-
-    /**
-     * @return the driverManager
-     */
-    public String getDriverManager()
-    {
-        return driverManager;
-    }
-
-    /**
-     * @param driverManager the driverManager to set
-     */
-    public void setDriverManager(String driverManager)
-    {
-        this.driverManager = driverManager;
     }
 
     public Connection getConnect() throws Exception
@@ -69,11 +41,41 @@ public class ConnectionDB
         return this.connect;
     }
 
-    /**
-     * @param connect the connect to set
-     */
-    public void setConnect(Connection connect)
+    public static Statement createStatement()
     {
-        this.connect = connect;
+        try
+        {
+            return ConnectionDB.getInstance().getConnect().createStatement();
+        }
+        catch (Exception ex)
+        {
+            Logger.getLogger(ConnectionDB.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+
+
+    /**
+     * Geter's and Seter's
+     */
+
+    public String getClassForName()
+    {
+        return classForName;
+    }
+
+    public void setClassForName(String classForName)
+    {
+        this.classForName = classForName;
+    }
+
+    public String getDriverManager()
+    {
+        return driverManager;
+    }
+
+    public void setDriverManager(String driverManager)
+    {
+        this.driverManager = driverManager;
     }
 }

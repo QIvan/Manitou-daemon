@@ -15,9 +15,7 @@ import java.util.logging.Logger;
 
 public class MailMessage
 {
-
-    private static ConnectionDB conn;
-    private static Connection bd;
+    private  Connection bd;
 
     public MailMessage()
     {
@@ -25,19 +23,12 @@ public class MailMessage
         {
 //          conn = new ConnectionDB("org.postgresql.Driver",
 //                                  "jdbc:postgresql:test");
-            conn = ConnectionDB.getInstance("org.sqlite.JDBC",
-                                            "jdbc:sqlite:DB/MsgDB");
-            bd = conn.getConnect();
+            bd = ConnectionDB.getInstance().getConnect();
         }
         catch (Exception ex)
         {
             Logger.getLogger(MailMessage.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public Connection getConnect() throws Exception
-    {
-        return conn.getConnect();
     }
 
     /**
