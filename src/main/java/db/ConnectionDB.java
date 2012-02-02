@@ -2,7 +2,6 @@ package db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,31 +55,6 @@ public class ConnectionDB
             return null;
         }
     }
-
-    /**
-     * Просто выполняет нужный Select к базе.
-     * @param query - выполняемый запрос к базе.
-     * @return количество обновлённых строк
-     * @since Столкнулся с проблемой закрытия Statement. По-этому создал эту функцию.
-     * @see java.sql.Statement executeQuery
-     */
-    public static ResultSet executeSelect (String query)
-    {
-        try
-        {
-            Statement statement = ConnectionDB.getInstance().getConnect().createStatement();
-            ResultSet result = statement.executeQuery(query);
-            statement.close();
-            return result;
-
-        }
-        catch (Exception ex)
-        {
-            Logger.getLogger(ConnectionDB.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
-
 
     /**
      * Выполняет нужный Update к базе.

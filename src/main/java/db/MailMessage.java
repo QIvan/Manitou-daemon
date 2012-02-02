@@ -41,8 +41,8 @@ public class MailMessage
         String sender = "";
         String subject = "";
         String messageID = ""; //Mime ID
-        String msgDate = "";
-        String sentDate = Calendar.getInstance().getTime().toString();
+        String senderDate = "";
+        String accseptDate = String.valueOf(Calendar.getInstance().getTime().getTime());
 
         DataHandler dataHandler = msg.getDataHandler();
         Enumeration allHeaders = msg.getAllHeaders();
@@ -53,8 +53,8 @@ public class MailMessage
                 messageID = header.getValue();
             if (header.getName().equals("Received"))
             {
-                msgDate = header.getValue();
-                msgDate = msgDate.substring(msgDate.lastIndexOf(";") + 1);
+                senderDate = header.getValue();
+                senderDate = senderDate.substring(senderDate.lastIndexOf(";") + 1);
             }
 
         }
@@ -73,9 +73,9 @@ public class MailMessage
                                  + "', '"
                                  + subject
                                  + "', '"
-                                 + sentDate
+                                 + accseptDate
                                  + "',  '"
-                                 + msgDate
+                                 + senderDate
                                  + "', 0, '"
                                  + messageID
                                  + "')";
@@ -130,10 +130,7 @@ public class MailMessage
                 result.setFrom(addressTo);
                 result.addRecipient(Message.RecipientType.TO, addressTo);
                 result.setSubject(headerRs.getString(2));
-                result.setSentDate(headerRs.getDate(3));
-                System.out.println("1 - " + headerRs.getString(1) +
-                                   "\n2 - " + headerRs.getString(2) +
-                                   "\n3 - " + headerRs.getString(3));
+                result.setSentDate(headerRs.getTimestamp(3));
             }
 
             ResultSet bodyRs = infoSt.executeQuery(
@@ -160,10 +157,12 @@ public class MailMessage
         ArrayList<Integer> result = new ArrayList<Integer>();
         try
         {
-            ResultSet mailIDs = ConnectionDB.executeSelect(
+            Statement selectMailForSend = ConnectionDB.createStatement();
+            ResultSet mailIDs = selectMailForSend.executeQuery(
                     "Select mail_id from mail where status & 128 = 128");
             while (mailIDs.next())
                 result.add(mailIDs.getInt(1));
+            selectMailForSend.close();
         }
         catch (SQLException ex)
         {

@@ -18,19 +18,14 @@ import java.util.Properties;
  */
 public class MailMessageTest extends TestCase
 {
-
-
-    public static final String ADDRESS = "manitou.mail.test@gmail.com";
-    public static final String TEXT_MAILS = "Test mail from testCase";
-    public static final String SUBJECT = "Subject";
+    private static final String ADDRESS = "manitou.mail.test@gmail.com";
+    private static final String TEXT_MAILS = "Test mail from testCase";
+    private static final String SUBJECT = "Subject";
     private MailMessage mm;
-    private Statement st;
-
 
     public MailMessageTest() throws Exception
     {
         mm = new MailMessage();
-        st = ConnectionDB.createStatement();
     }
 
     public void testParseMsg() throws Exception
@@ -41,10 +36,21 @@ public class MailMessageTest extends TestCase
         assertTrue(id != -1);
         System.out.println(id);
 
-        ResultSet mailResult = st.executeQuery(
-                "Select * from mail where mail_id=" + id);
+        Statement checkAdd = ConnectionDB.createStatement();
 
+        ResultSet mailResult = checkAdd.executeQuery(
+                "Select * from mail where mail_id=" + id);
         assertTrue(mailResult.next());
+        assertFalse(mailResult.next());
+
+        ResultSet status = checkAdd.executeQuery(
+                "Select * from mail_status where mail_id = " + id);
+        assertTrue(status.next());
+        assertFalse(status.next());
+
+        checkAdd.close();
+
+
     }
 
     public void testGetMessagesToSend() throws Exception
@@ -72,8 +78,11 @@ public class MailMessageTest extends TestCase
     public void tearDown() throws Exception
     {
         super.tearDown();
+        Statement st = ConnectionDB.createStatement();
         st.execute("DELETE FROM body");
         st.execute("DELETE FROM mail");
+        st.execute("DELETE FROM mail_status");
+        st.close();
     }
 
 
