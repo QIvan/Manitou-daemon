@@ -10,10 +10,12 @@ import db.MailMessage;
 import javax.activation.CommandInfo;
 import javax.activation.DataHandler;
 import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Properties;
 
 /**
  *
@@ -33,9 +35,12 @@ public class Daemon
 
 
         try {
+
+
+
+
             sendAllPost();
 
-/*
             Session session = Session.getDefaultInstance(new Properties());
             //Создание письма
             Message message = new MimeMessage(session);
@@ -200,21 +205,20 @@ public class Daemon
     {
         MailMessage mm = new MailMessage();
         ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
-        Transport transport = gNetSettings.getInstance().getSmtpTransport();
         System.out.println(messagesToSend);
-        Statement st = ConnectionDB.createStatement();
-        for (Integer id : messagesToSend) {
+        for (Integer id : messagesToSend)
+        {
             Message message = mm.createMessageOfDB(id);
-            // TODO разобраться с обновлениями статусов!
-            st.executeUpdate(
-                            "UPDATE mail_status SET status=status & ~128 where mail_id = "
-                            + id
-                            );
-            st.executeUpdate("UPDATE mail SET status=status & ~128 where mail_id = "
-                              + id);
-            //transport.sendMessage(message, message.getAllRecipients());
+            ConnectionDB.executeUpdate(
+                    "UPDATE mail_status SET status=status & ~128 where mail_id = "
+                    + id
+            );
+            ConnectionDB.executeUpdate(
+                    "UPDATE mail SET status=status & ~128 where mail_id = "
+                    + id);
+            gNetSettings.getInstance().getSmtpTransport().sendMessage(message,
+                                                                      message.getAllRecipients());
         }
-        st.close();
     }
 
 

@@ -21,8 +21,6 @@ public class MailMessage
     {
         try
         {
-//          conn = new ConnectionDB("org.postgresql.Driver",
-//                                  "jdbc:postgresql:test");
             bd = ConnectionDB.getInstance().getConnect();
         }
         catch (Exception ex)
@@ -35,7 +33,7 @@ public class MailMessage
      * Записывает в БД сообщение msg
      *
      * @param msg looks like a message
-     * @return возвращает id сообщения из таблицы mail
+     * @return id Message from table "mail"
      * @throws Exception looks like SQLException
      */
     public int parseMsg(Message msg) throws SQLException, MessagingException
@@ -51,9 +49,9 @@ public class MailMessage
         while (allHeaders.hasMoreElements())
         {
             Header header = (Header) allHeaders.nextElement();
-            if (header.getName().equals("Message-ID") )
+            if (header.getName().equals("Message-ID"))
                 messageID = header.getValue();
-            if (header.getName().equals("Received") )
+            if (header.getName().equals("Received"))
             {
                 msgDate = header.getValue();
                 msgDate = msgDate.substring(msgDate.lastIndexOf(";") + 1);
@@ -70,8 +68,17 @@ public class MailMessage
             String queryInsert = "INSERT INTO "
                                  + "mail(sender, subject, msg_date, sender_date, status, message_id)"
                                  + " VALUES "
-                                 + "('" + sender + "', '" + subject + "', '" + sentDate
-                                 + "',  '" + msgDate + "', 0, '" + messageID + "')";
+                                 + "('"
+                                 + sender
+                                 + "', '"
+                                 + subject
+                                 + "', '"
+                                 + sentDate
+                                 + "',  '"
+                                 + msgDate
+                                 + "', 0, '"
+                                 + messageID
+                                 + "')";
 
             System.out.println(queryInsert);
             st.execute(queryInsert);
@@ -80,16 +87,13 @@ public class MailMessage
             rs.next();
             mailID = rs.getInt(1);
 
-            String body = "";
             // TODO getContent() не всегда возвращает тело письма!
+            String body = "";
             if (dataHandler.getContentType().startsWith("text/plain"))
                 body = dataHandler.getContent().toString();
-            System.out.println("INSERT INTO body(mail_id, bodytext) VALUES "
-                                + "(" + mailID + " , '" + body + "')");
+
             st.execute("INSERT INTO body(mail_id, bodytext) VALUES "
-                        + "(" + mailID + " , '" + body + "')");
-
-
+                       + "(" + mailID + " , '" + body + "')");
         }
         catch (SQLException e)
         {
@@ -113,7 +117,7 @@ public class MailMessage
      */
     public Message createMessageOfDB(int id)
     {
-        Message result = new MimeMessage(Session.getDefaultInstance(null));
+        Message result = new MimeMessage(Session.getDefaultInstance(new Properties()));
         try
         {
             Statement infoSt = bd.createStatement();
@@ -138,6 +142,8 @@ public class MailMessage
             if (bodyRs.next())
                 result.setText(bodyRs.getString(1));
 
+            infoSt.close();
+
         }
         catch (Exception ex)
         {
@@ -154,9 +160,8 @@ public class MailMessage
         ArrayList<Integer> result = new ArrayList<Integer>();
         try
         {
-            ResultSet mailIDs = bd.prepareStatement(
-                    "Select mail_id from mail where status & 128 = 128"
-                                                    ).executeQuery();
+            ResultSet mailIDs = ConnectionDB.executeSelect(
+                    "Select mail_id from mail where status & 128 = 128");
             while (mailIDs.next())
                 result.add(mailIDs.getInt(1));
         }

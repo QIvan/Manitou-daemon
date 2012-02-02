@@ -2,6 +2,7 @@ package db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,10 +50,73 @@ public class ConnectionDB
         }
         catch (Exception ex)
         {
+            Logger.getLogger(ConnectionDB.class.getName()).log(Level.SEVERE,
+                                                               null,
+                                                               ex);
+            return null;
+        }
+    }
+
+    /**
+     * Просто выполняет нужный Select к базе.
+     * @param query - выполняемый запрос к базе.
+     * @return количество обновлённых строк
+     * @since Столкнулся с проблемой закрытия Statement. По-этому создал эту функцию.
+     * @see java.sql.Statement executeQuery
+     */
+    public static ResultSet executeSelect (String query)
+    {
+        try
+        {
+            Statement statement = ConnectionDB.getInstance().getConnect().createStatement();
+            ResultSet result = statement.executeQuery(query);
+            statement.close();
+            return result;
+
+        }
+        catch (Exception ex)
+        {
             Logger.getLogger(ConnectionDB.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }
+
+
+    /**
+     * Выполняет нужный Update к базе.
+     * @param query - выполняемый запрос к базе.
+     * @return количество обновлённых строк
+     * @since Столкнулся с проблемой закрытия Statement. По-этому создал эту функцию.
+     * @see java.sql.Statement executeUpdate
+     */
+    public static int executeUpdate (String query)
+    {
+        try
+        {
+            Statement statement = ConnectionDB.getInstance().getConnect().createStatement();
+            int result = statement.executeUpdate(query);
+            statement.close();
+            return result;
+
+        }
+        catch (Exception ex)
+        {
+            Logger.getLogger(ConnectionDB.class.getName()).log(Level.SEVERE, null, ex);
+            return -1;
+        }
+    }
+
+    /**
+     * Выполняет нужный Insert к базе.
+     * @param query - выполняемый запрос к базе.
+     * @return количество обновлённых строк
+     * @since Столкнулся с проблемой закрытия Statement. По-этому создал эту функцию.
+     */
+    public static int executeInsert (String query)
+    {
+        return executeUpdate(query);
+    }
+
 
 
     /**
