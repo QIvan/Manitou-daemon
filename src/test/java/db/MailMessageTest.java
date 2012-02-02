@@ -32,7 +32,7 @@ public class MailMessageTest extends TestCase
     {
         Message message = this.createTestMessage();
 
-        int id = mm.parseMsg(message);
+        int id = mm.insertMessageInDB(message);
         assertTrue(id != -1);
         System.out.println(id);
 
@@ -61,17 +61,21 @@ public class MailMessageTest extends TestCase
     public void testCreateMessageOfDB() throws Exception
     {
         Message testMessage = this.createTestMessage();
-        int id = mm.parseMsg(testMessage);
+        int id = mm.insertMessageInDB(testMessage);
 
         Message messageOfDB = mm.createMessageOfDB(id);
 
+        // check Subject
         assertTrue(messageOfDB.getSubject().equals(testMessage.getSubject()));
+        // check From Address
         assertTrue(Arrays.equals(messageOfDB.getFrom(), testMessage.getFrom()));
-        System.out.println("\n" + messageOfDB.getSentDate().toString());
-        System.out.println(testMessage.getSentDate().toString());
+        // check Date
         assertTrue(messageOfDB.getSentDate().equals(testMessage.getSentDate()));
         // TODO сделать проверку на тело сообщения.
-        //assertTrue(messageOfDB.getReceivedDate().equals(testMessage.getReceivedDate()));
+
+//        System.out.println("\n" + messageOfDB.getSentDate().toString());
+//        System.out.println(testMessage.getSentDate().toString());
+
     }
 
     @Override

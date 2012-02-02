@@ -36,7 +36,7 @@ public class MailMessage
      * @return id Message from table "mail"
      * @throws Exception looks like SQLException
      */
-    public int parseMsg(Message msg) throws SQLException, MessagingException
+    public int insertMessageInDB(Message msg) throws SQLException, MessagingException
     {
         String sender = "";
         String subject = "";

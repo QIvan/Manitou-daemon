@@ -10,12 +10,11 @@ import db.MailMessage;
 import javax.activation.CommandInfo;
 import javax.activation.DataHandler;
 import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import javax.mail.search.FlagTerm;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Properties;
+
 
 /**
  *
@@ -24,8 +23,6 @@ import java.util.Properties;
 //test
 public class Daemon
 {
-    public static final String MAIL_TEXT = "New Mail";
-    public static final String BODY_TEXT = "Body text";
 
     /**
      * @param args the command line arguments
@@ -35,25 +32,9 @@ public class Daemon
 
 
         try {
+            sendAllMail();
 
 
-
-
-            sendAllPost();
-
-            Session session = Session.getDefaultInstance(new Properties());
-            //Создание письма
-            Message message = new MimeMessage(session);
-            message.setSubject(MAIL_TEXT);
-            message.setText(BODY_TEXT);				//установка тела сообщения
-            Address address = new InternetAddress("SentTo@qivan");
-            message.setFrom(address);						 //добавление получателя
-
-            Address toAddress = new InternetAddress("manitou.mail.test@gmail.com");
-            message.addRecipient(Message.RecipientType.TO, toAddress);
-            message.saveChanges(); // implicit with send()
-
-            gNetSettings.getInstance().getSmtpTransport().sendMessage(message, message.getAllRecipients());
 /**/                                      /*
             MailMessage mm1 = new MailMessage();
             Statement statement = mm1.getConnect().createStatement();
@@ -92,13 +73,13 @@ public class Daemon
 
             /*for (Message msg : unreadMessages)
             {
-                mm.parseMsg(msg);
+                mm.insertMessageInDB(msg);
             }
 
             /*mm.getConnect().createStatement().execute("Delete from mail;");
             for (Message msg : messages)
             {
-                mm.parseMsg(msg);
+                mm.insertMessageInDB(msg);
             } */
 
 
@@ -138,7 +119,7 @@ public class Daemon
             // Get the messages from the server
             Message[] messages = inbox.getMessages();
             System.out.println("Messages count = " + messages.length);
-            //MailMessage.parseMsg(messages[0]);
+            //MailMessage.insertMessageInDB(messages[0]);
             if (messages.length != 0)
             {
             //for (int i = 0; i < messages.length; i++) {
@@ -201,7 +182,7 @@ public class Daemon
         }
     }
     
-    private static void sendAllPost() throws Exception
+    private static void sendAllMail() throws Exception
     {
         MailMessage mm = new MailMessage();
         ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
@@ -219,6 +200,28 @@ public class Daemon
             gNetSettings.getInstance().getSmtpTransport().sendMessage(message,
                                                                       message.getAllRecipients());
         }
+    }
+
+    public static void getAllUnreadMail() throws Exception
+    {
+        Store imap = gNetSettings.getInstance().getImapConnect();
+        Folder folder = imap.getFolder("INBOX");
+        folder.open(Folder.READ_WRITE);
+
+        Message[] unreadMessages = folder.search(
+                new FlagTerm(new Flags(Flags.Flag.SEEN), false));          //взять все непрочитанные сообщения
+        printMessages(unreadMessages);
+
+        System.out.println("\nIs new message: " + folder.hasNewMessages());
+        System.out.println("Count message in folder:" + folder.getMessageCount() + "\n");
+        System.out.println("\nCount new message: " + unreadMessages.length);
+
+        MailMessage mm = new MailMessage();
+        for (Message msg : unreadMessages)
+        {
+            mm.insertMessageInDB(msg);
+        }
+
     }
 
 
