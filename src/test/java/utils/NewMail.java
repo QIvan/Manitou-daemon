@@ -18,7 +18,7 @@ public class NewMail
 {
     private static final String ADDRESS = "manitou.mail.test@gmail.com";
     private static final String SUBJECT = "Subject: New Mail";
-    private static final String TEXT_MAILS = "Body text: Test mail from testCase";
+    private static final String TEXT_MAILS = "Body text:\n Test mail \nfrom testCase";
 
     public static Message createTestMessage() throws Exception
     {
