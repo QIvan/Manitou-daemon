@@ -4,21 +4,18 @@
  */
 package net;
 
+import junit.framework.TestCase;
 import org.junit.*;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
-
 import java.util.Properties;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  *
  * @author ivan
  */
-public class gNetSettingsTest
+public class gNetSettingsTest extends TestCase
 {
     
     public gNetSettingsTest()

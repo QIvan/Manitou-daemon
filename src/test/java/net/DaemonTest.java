@@ -1,19 +1,29 @@
 package net;
 
 import junit.framework.TestCase;
-import utils.NewMail;
+import utils.DeleteMails;
 
 /**
- * Created 02.02.12 @ 19:52 by i.zemlyansky.
- */
+* Created 02.02.12 @ 19:52 by i.zemlyansky.
+*/
 public class DaemonTest extends TestCase
 {
     public void testGetMail() throws Exception
     {
-        NewMail.sendTestMail();
+        utils.NewMail.sendTestMail();
         Daemon.getAllUnreadMail();
 
-        //TODO проверить добавилось ли письмо в базу
+        final int[] resultDelete = DeleteMails.DeleteAllInDB();
+        System.out.print(resultDelete);
+        int number = 0;
+        for (int i : resultDelete)
+        {
+            ++number;
+//            Для SQLite не работает
+//            TODO придумать другую проверку
+//            if (i == 0)
+//                fail("Query number " + number + " Return 0");
+        }
     }
 
     public void testSendMail() throws Exception
@@ -21,12 +31,11 @@ public class DaemonTest extends TestCase
 
     }
 
-
-
-    private void addTestMailInDB()
+    @Override
+    public void tearDown() throws Exception
     {
+        DeleteMails.DeleteAllInMailbox();
+
 
     }
-
-    // TODO сделать tearDown медод для удаления писем с ящика и из базы
 }

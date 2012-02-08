@@ -1,5 +1,6 @@
 package utils;
 
+import db.MailMessage;
 import net.gNetSettings;
 
 import javax.mail.Address;
@@ -16,10 +17,8 @@ import java.util.Properties;
 public class NewMail
 {
     private static final String ADDRESS = "manitou.mail.test@gmail.com";
-    private static final String TEXT_MAILS = "Test mail from testCase";
-    private static final String SUBJECT = "Subject";
-    private static final String MAIL_TEXT = "New Mail";
-    private static final String BODY_TEXT = "Body text";
+    private static final String SUBJECT = "Subject: New Mail";
+    private static final String TEXT_MAILS = "Body text: Test mail from testCase";
 
     public static Message createTestMessage() throws Exception
     {
@@ -51,4 +50,12 @@ public class NewMail
                                                                   testMessage.getAllRecipients());
     }
 
+
+    public static void putInDbTestMail() throws Exception
+    {
+        Message testMessage = createTestMessage();
+
+        MailMessage mm = new MailMessage();
+        mm.insertMessageInDB(testMessage);
+    }
 }

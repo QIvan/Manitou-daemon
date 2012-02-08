@@ -8,8 +8,15 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Enumeration;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,13 +43,14 @@ public class MailMessage
      * @return id Message from table "mail"
      * @throws Exception looks like SQLException
      */
-    public int insertMessageInDB(Message msg) throws SQLException, MessagingException
+    public int insertMessageInDB(Message msg)
+            throws SQLException, MessagingException, ParseException
     {
         String sender = "";
         String subject = "";
         String messageID = ""; //Mime ID
         String senderDate = "";
-        String accseptDate = String.valueOf(Calendar.getInstance().getTime().getTime());
+        String acceptDate = String.valueOf(Calendar.getInstance().getTime().getTime());
 
         DataHandler dataHandler = msg.getDataHandler();
         Enumeration allHeaders = msg.getAllHeaders();
@@ -55,6 +63,9 @@ public class MailMessage
             {
                 senderDate = header.getValue();
                 senderDate = senderDate.substring(senderDate.lastIndexOf(";") + 1);
+
+
+
             }
 
         }
@@ -73,7 +84,7 @@ public class MailMessage
                                  + "', '"
                                  + subject
                                  + "', '"
-                                 + accseptDate
+                                 + acceptDate
                                  + "',  '"
                                  + senderDate
                                  + "', 0, '"
