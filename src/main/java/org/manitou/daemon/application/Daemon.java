@@ -77,7 +77,11 @@ public class Daemon implements Serializable
     {
         jCommander.setProgramName(PROGRAM_NAME);
         jCommander.usage();
-        System.exit(ExitCode.normal.getCode());
+        Daemon.exit(ExitCode.normal);
     }
 
+    public static void exit(ExitCode code)
+    {
+        System.exit(code.getCode());
+    }
 }
