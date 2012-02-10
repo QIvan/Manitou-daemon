@@ -7,7 +7,9 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -63,9 +65,6 @@ public class MailMessage
             {
                 senderDate = header.getValue();
                 senderDate = senderDate.substring(senderDate.lastIndexOf(";") + 1);
-
-
-
             }
 
         }
@@ -99,12 +98,25 @@ public class MailMessage
             mailID = rs.getInt(1);
 
             // TODO getContent() не всегда возвращает тело письма!
-            String body = "";
+            String body = this.getTextMail(msg);
             if (dataHandler.getContentType().startsWith("text/plain"))
+            {
+
                 body = dataHandler.getContent().toString();
+            }
 
             st.execute("INSERT INTO body(mail_id, bodytext) VALUES "
                        + "(" + mailID + " , '" + body + "')");
+
+
+            /*String header = String.format(  "From: %s \n"
+                                          + "To: %s \n"
+                                          + "Subject: %s \n"
+                                          + "Date: %s\n"
+                                          + "Message-Id: <%s>\n"
+                                          ,sender);
+            st.execute("INSERT INTO header VALUES "
+                       + "(" + mailID + " , '" + header + "')");*/
         }
         catch (SQLException e)
         {
@@ -119,6 +131,33 @@ public class MailMessage
         st.close();
         return mailID;
 
+    }
+
+
+    private String getTextMail(Message msg)
+    {
+        InputStream inputStream ;
+        try
+        {
+            inputStream = msg.getDataHandler().getInputStream();
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+
+        int bytes_read = 0;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte data[] = new byte[1024];
+
+        try {
+        while((bytes_read = inputStream.read(data)) >0)
+            baos.write(data, 0, bytes_read);
+        inputStream.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return baos.toString();
     }
 
 
