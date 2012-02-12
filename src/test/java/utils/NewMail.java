@@ -19,6 +19,8 @@ public class NewMail
     private static final String ADDRESS = "manitou.mail.test@gmail.com";
     private static final String SUBJECT = "Subject: New Mail";
     private static final String TEXT_MAILS = "Body text:\n Test mail \nfrom testCase";
+    private static final String FROM = "tester@vniins";
+
 
     public static Message createTestMessage() throws Exception
     {
@@ -26,14 +28,14 @@ public class NewMail
         Message message =
                 new MimeMessage(Session.getDefaultInstance(new Properties()));
         message.setSubject(SUBJECT);
-        message.setText(TEXT_MAILS);                //установка тела сообщения
-        Address address = new InternetAddress(ADDRESS);
-        message.setFrom(address);                         //добавление получателя
+        message.setText(TEXT_MAILS);                  //установка тела сообщения
+        message.setFrom(new InternetAddress(FROM));   //добавление получателя
+        message.setHeader("X-Mailer", "ManitouLite");
 
         Address toAddress = new InternetAddress(ADDRESS);
-        Address ccAddress = new InternetAddress(ADDRESS);
+        //Address ccAddress = new InternetAddress(ADDRESS);
         message.addRecipient(Message.RecipientType.TO, toAddress);
-        message.addRecipient(Message.RecipientType.CC, ccAddress);
+        //message.addRecipient(Message.RecipientType.CC, ccAddress);
 
         message.setSentDate(Calendar.getInstance().getTime());
         message.saveChanges();

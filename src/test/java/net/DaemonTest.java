@@ -11,6 +11,7 @@ public class DaemonTest extends TestCase
     public void testGetMail() throws Exception
     {
         utils.NewMail.sendTestMail();
+        Thread.sleep(1000);
         Daemon.getAllUnreadMail();
 
         final int[] resultDelete = DeleteMails.DeleteAllInDB();
