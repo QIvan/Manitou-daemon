@@ -37,7 +37,7 @@ public class ParseMessage
         String result = "";
         Address[] addresses = msg.getFrom();
         for (Address addr : addresses)
-            result.concat(addr.toString() + "\n");
+            result += (addr.toString() + "\n");
         return result;
     }
 
