@@ -1,5 +1,7 @@
 package db;
 
+import net.ParseMessage;
+
 import javax.activation.DataHandler;
 import javax.mail.Header;
 import javax.mail.Message;
@@ -8,7 +10,6 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -48,19 +49,17 @@ public class MailMessage
     public int insertMessageInDB(Message msg)
             throws SQLException, MessagingException, ParseException
     {
-        String sender = "";
-        String subject = "";
-        String messageID = ""; //Mime ID
+        ParseMessage parser = new ParseMessage(msg);
+
+
         String senderDate = "";
-        String acceptDate = String.valueOf(Calendar.getInstance().getTime().getTime());
+
 
         DataHandler dataHandler = msg.getDataHandler();
         Enumeration allHeaders = msg.getAllHeaders();
         while (allHeaders.hasMoreElements())
         {
             Header header = (Header) allHeaders.nextElement();
-            if (header.getName().equals("Message-ID"))
-                messageID = header.getValue();
             if (header.getName().equals("Received"))
             {
                 senderDate = header.getValue();
@@ -68,70 +67,60 @@ public class MailMessage
             }
 
         }
-        try { sender = msg.getFrom()[0].toString(); } catch (Exception e) {}
-        try { subject = msg.getSubject(); } catch (Exception e) {}
+
+
 
         int mailID = -1;
         Statement st = bd.createStatement();
+
         st.execute("BEGIN");
         try {
-            String queryInsert = "INSERT INTO "
+            String queryMail = "INSERT INTO "
                                  + "mail(sender, subject, msg_date, sender_date, status, message_id)"
                                  + " VALUES "
                                  + "('"
-                                 + sender
+                                 + parser.getFrom()
                                  + "', '"
-                                 + subject
+                                 + parser.getSubject()
                                  + "', '"
-                                 + acceptDate
+                                 + String.valueOf(Calendar.getInstance().getTime().getTime())
                                  + "',  '"
-                                 + senderDate
+                                 + parser.getSentDate().getTime()
                                  + "', 0, '"
-                                 + messageID
+                                 + parser.getMessageID()
                                  + "')";
 
-            System.out.println(queryInsert);
-            st.execute(queryInsert);
+            System.out.println(queryMail);
+            st.execute(queryMail);
 
             ResultSet rs = st.executeQuery("SELECT MAX(mail_id) FROM mail");
             rs.next();
             mailID = rs.getInt(1);
 
-            // TODO getContent() не всегда возвращает тело письма!
-            String body = this.getTextMail(msg);
-            if (dataHandler.getContentType().startsWith("text/plain"))
-            {
+            String queryBody = "INSERT INTO body(mail_id, bodytext) VALUES "
+                               + "(" + mailID + " , '" + parser.getBody() + "')";
+            System.out.println(queryBody);
+            st.execute(queryBody);
 
-                body = dataHandler.getContent().toString();
-            }
+            String queryHeader = "INSERT INTO header VALUES "
+                       + "(" + mailID + " , '" + parser.getHeader() + "')";
+            System.out.println(queryHeader);
+            st.execute(queryHeader);
 
-            st.execute("INSERT INTO body(mail_id, bodytext) VALUES "
-                       + "(" + mailID + " , '" + body + "')");
-
-
-            /*String header = String.format(  "From: %s \n"
-                                          + "To: %s \n"
-                                          + "Subject: %s \n"
-                                          + "Date: %s\n"
-                                          + "Message-Id: <%s>\n"
-                                          ,sender);
-            st.execute("INSERT INTO header VALUES "
-                       + "(" + mailID + " , '" + header + "')");*/
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             st.execute("ROLLBACK");
-            throw e;
-        }
-        catch (IOException e)
-        {
-
+            e.printStackTrace();
+            throw new ParseException("Insert Error", 0);
         }
         st.execute("COMMIT");
         st.close();
         return mailID;
 
     }
+
+
 
 
     private String getTextMail(Message msg)

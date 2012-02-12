@@ -25,13 +25,20 @@ public class ParseMessage
 
     public String getBody() throws IOException, MessagingException
     {
+        if (msg.getContent() instanceof String)
+            return (String)msg.getContent();
+
         DataContentHandler dcp = new text_plain();
         return (String) dcp.getContent(msg.getDataHandler().getDataSource());
     }
 
-    public Address[] getFrom() throws MessagingException
+    public String getFrom() throws MessagingException
     {
-        return msg.getFrom();
+        String result = "";
+        Address[] addresses = msg.getFrom();
+        for (Address addr : addresses)
+            result.concat(addr.toString() + "\n");
+        return result;
     }
 
     public Date getSentDate() throws MessagingException
@@ -76,5 +83,43 @@ public class ParseMessage
         {
             return "";
         }
+    }
+
+    public String getHeader()
+    {
+        String result = "";
+        final String FROM = "From";
+        result += FROM + ": " + addIfNotNull(FROM) + "\n";
+        final String TO = "TO";
+        result += TO + ": " + addIfNotNull(TO) + "\n";
+        final String SUBJECT = "Subject";
+        result += SUBJECT + ": " + addIfNotNull(SUBJECT) + "\n";
+        final String DATE = "Date";
+        result += DATE + ": " + addIfNotNull(DATE) + "\n";
+        final String MESSAGE_ID = "Message-Id";
+        result += MESSAGE_ID + ": " + addIfNotNull(MESSAGE_ID) + "\n";
+
+
+        System.out.print(result);
+        return result;
+    }
+
+    private String addIfNotNull (String type)
+    {
+        String result = new String();
+        try{
+            String headers[] = msg.getHeader(type);
+            if (headers.length != 0)
+            {
+                for (String hdr : headers)
+                    result += hdr + " ";
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 }
