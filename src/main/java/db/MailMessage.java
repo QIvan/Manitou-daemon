@@ -2,23 +2,20 @@ package db;
 
 import net.ParseMessage;
 
-import javax.activation.DataHandler;
-import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,32 +44,13 @@ public class MailMessage
      * @throws Exception looks like SQLException
      */
     public int insertMessageInDB(Message msg)
-            throws SQLException, MessagingException, ParseException
+            throws SQLException, MessagingException
     {
-        ParseMessage parser = new ParseMessage(msg);
-
-
-        String senderDate = "";
-
-
-        DataHandler dataHandler = msg.getDataHandler();
-        Enumeration allHeaders = msg.getAllHeaders();
-        while (allHeaders.hasMoreElements())
-        {
-            Header header = (Header) allHeaders.nextElement();
-            if (header.getName().equals("Received"))
-            {
-                senderDate = header.getValue();
-                senderDate = senderDate.substring(senderDate.lastIndexOf(";") + 1);
-            }
-
-        }
-
-
 
         int mailID = -1;
         Statement st = bd.createStatement();
 
+        ParseMessage parser = new ParseMessage(msg);
         st.execute("BEGIN");
         try {
             String queryMail = "INSERT INTO "
@@ -108,11 +86,11 @@ public class MailMessage
             st.execute(queryHeader);
 
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             st.execute("ROLLBACK");
+            System.err.println("Parse Error in insertMessageInDB");
             e.printStackTrace();
-            throw new ParseException("Insert Error", 0);
         }
         st.execute("COMMIT");
         st.close();

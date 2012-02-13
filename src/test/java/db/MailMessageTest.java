@@ -1,6 +1,7 @@
 package db;
 
 import junit.framework.TestCase;
+import utils.DeleteMails;
 import utils.NewMail;
 
 import javax.mail.Message;
@@ -86,12 +87,7 @@ public class MailMessageTest extends TestCase
     public void tearDown() throws Exception
     {
         super.tearDown();
-        Statement st = ConnectionDB.createStatement();
-        st.execute("DELETE FROM body");
-        st.execute("DELETE FROM header");
-        st.execute("DELETE FROM mail_status");
-        st.execute("DELETE FROM mail");
-        st.close();
+        DeleteMails.DeleteAllInDB();
     }
 
 

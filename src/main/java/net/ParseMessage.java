@@ -32,12 +32,19 @@ public class ParseMessage
         return (String) dcp.getContent(msg.getDataHandler().getDataSource());
     }
 
-    public String getFrom() throws MessagingException
+    public String getFrom()
     {
         String result = "";
-        Address[] addresses = msg.getFrom();
-        for (Address addr : addresses)
-            result += (addr.toString() + "\n");
+        try{
+            Address[] addresses = msg.getFrom();
+            for (Address addr : addresses)
+                result += (addr.toString() + "\n");
+        }
+        catch (MessagingException e)
+        {
+            System.err.println("Warning! Error in getFrom class's Message");
+            e.printStackTrace();
+        }
         return result;
     }
 
@@ -106,7 +113,7 @@ public class ParseMessage
 
     private String addIfNotNull (String type)
     {
-        String result = new String();
+        String result = "";
         try{
             String headers[] = msg.getHeader(type);
             if (headers.length != 0)
