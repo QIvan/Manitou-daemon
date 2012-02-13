@@ -12,7 +12,6 @@ import javax.mail.search.FlagTerm;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 
 
 /**
@@ -58,19 +57,6 @@ public class Daemon
 
         for (Message msg : messages)
         {
-            System.out.println(msg.getSubject());
-            final Enumeration allHeaders = msg.getAllHeaders();
-            while (allHeaders.hasMoreElements())
-            {
-                final Header header = (Header) allHeaders.nextElement();
-                System.out.print("Name " + header.getName());
-                System.out.println("\t Value " + header.getValue());
-            }
-            System.out.print(msg.getDisposition());
-            System.out.println(msg.getDescription());
-            //System.out.println((IMAPInputStream)msg.getContent());
-
-            System.out.print("Body: ");
             try {
                 msg.writeTo(System.out);
             }
@@ -93,6 +79,8 @@ public class Daemon
         for (Integer id : messagesToSend)
         {
             Message message = mm.createMessageOfDB(id);
+            gNetSettings.getInstance().getSmtpTransport().sendMessage(message,
+                                                                      message.getAllRecipients());
             ConnectionDB.executeUpdate(
                     "UPDATE mail_status SET status=status & ~128 where mail_id = "
                     + id
@@ -100,8 +88,6 @@ public class Daemon
             ConnectionDB.executeUpdate(
                     "UPDATE mail SET status=status & ~128 where mail_id = "
                     + id);
-            gNetSettings.getInstance().getSmtpTransport().sendMessage(message,
-                                                                      message.getAllRecipients());
         }
     }
 

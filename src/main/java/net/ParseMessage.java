@@ -38,7 +38,7 @@ public class ParseMessage
         try{
             Address[] addresses = msg.getFrom();
             for (Address addr : addresses)
-                result += (addr.toString() + "\n");
+                result += (addr.toString() + " ");
         }
         catch (MessagingException e)
         {
@@ -106,8 +106,6 @@ public class ParseMessage
         final String MESSAGE_ID = "Message-Id";
         result += MESSAGE_ID + ": " + addIfNotNull(MESSAGE_ID) + "\n";
 
-
-        System.out.print(result);
         return result;
     }
 
