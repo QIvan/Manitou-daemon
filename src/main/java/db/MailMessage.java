@@ -1,10 +1,7 @@
 package db;
 
 import javax.activation.DataHandler;
-import javax.mail.Header;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
+import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +21,11 @@ import java.util.logging.Logger;
 
 public class MailMessage
 {
+    public static final int FROM = 1;
+    public static final int TO = 2;
+    public static final int CC = 3;
+    public static final int REPLY_TO = 4;
+    public static final int BCC = 5;
     private  Connection bd;
 
     public MailMessage()
@@ -176,21 +178,21 @@ public class MailMessage
                     + id);
             if (headerRs.next())
             {
-                InternetAddress addressTo = new InternetAddress(headerRs.getString(1));
-                result.setFrom(addressTo);
-                result.addRecipient(Message.RecipientType.TO, addressTo);
+                //InternetAddress addressFrom = new InternetAddress(headerRs.getString(1));
+                //result.setFrom(addressFrom);
                 result.setSubject(headerRs.getString(2));
                 result.setSentDate(headerRs.getTimestamp(3));
             }
 
-            ResultSet bodyRs = infoSt.executeQuery(
-                               "Select bodytext from body where mail_id=" + id);
+            addRecipientInMessage(result, id);
 
+            ResultSet bodyRs = infoSt.executeQuery(
+                    "Select bodytext from body where mail_id=" + id);
             if (bodyRs.next())
                 result.setText(bodyRs.getString(1));
 
+            result.saveChanges();
             infoSt.close();
-
         }
         catch (Exception ex)
         {
@@ -199,6 +201,57 @@ public class MailMessage
                                                               ex);
         }
         return result;
+    }
+
+    private void addRecipientInMessage (Message msg, int id)
+            throws SQLException
+    {
+        final Statement stAddresses = ConnectionDB.createStatement();
+        ResultSet addressesRs = stAddresses.executeQuery(
+                "Select addr_id, addr_type from mail_addresses"
+                + " where mail_id=" + id);
+
+        final Statement stEmails = ConnectionDB.createStatement();
+        while (addressesRs.next())
+        {
+            final ResultSet emailsRs = stEmails.executeQuery(
+                    "SELECT email_addr from addresses where addr_id="
+                    + addressesRs.getInt(1));
+
+            try
+            {
+                final InternetAddress email = new InternetAddress(emailsRs.getString(1));
+                final int addr_type = addressesRs.getInt(2);
+                switch (addr_type)
+                {
+                    case FROM:
+                        msg.setFrom(email);
+                        break;
+                    case TO:
+                        msg.addRecipient(Message.RecipientType.TO, email);
+                        break;
+                    case CC:
+                        msg.addRecipient(Message.RecipientType.CC, email);
+                        break;
+                    case REPLY_TO:
+                        InternetAddress replyToAddr[] = {email};
+                        msg.setReplyTo(replyToAddr);
+                        break;
+
+                    case BCC:
+                        msg.addRecipient(Message.RecipientType.BCC, email);
+                        break;
+                }
+            }
+            catch (MessagingException e)
+            {
+                e.printStackTrace();
+                System.err.println("Bad e-mail addresses!");
+            }
+        }
+        stEmails.close();
+        stAddresses.close();
+
     }
 
 
