@@ -1,7 +1,10 @@
 package db;
 
 import javax.activation.DataHandler;
-import javax.mail.*;
+import javax.mail.Header;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +14,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Enumeration;
@@ -21,11 +23,11 @@ import java.util.logging.Logger;
 
 public class MailMessage
 {
-    public static final int FROM = 1;
-    public static final int TO = 2;
-    public static final int CC = 3;
-    public static final int REPLY_TO = 4;
-    public static final int BCC = 5;
+    private static final int FROM = 1;
+    private static final int TO = 2;
+    private static final int CC = 3;
+    private static final int REPLY_TO = 4;
+    private static final int BCC = 5;
     private  Connection bd;
 
     public MailMessage()
@@ -45,10 +47,9 @@ public class MailMessage
      *
      * @param msg looks like a message
      * @return id Message from table "mail"
-     * @throws Exception looks like SQLException
      */
     public int insertMessageInDB(Message msg)
-            throws SQLException, MessagingException, ParseException
+            throws SQLException, MessagingException
     {
         String sender = "";
         String subject = "";
@@ -127,7 +128,7 @@ public class MailMessage
         }
         catch (IOException e)
         {
-
+            e.printStackTrace();
         }
         st.execute("COMMIT");
         st.close();

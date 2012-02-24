@@ -20,15 +20,15 @@ import java.util.Properties;
 public class gNetSettings
 {
     private static gNetSettings impl = null;
-    /*private String popHost = "pop.gmail.com";
-    private int popPort = 995;
-    private String imapHost = "imap.gmail.com";
-    private int imapPort = 993;
-    private String smtpHost = "smtp.gmail.com";
-    private int smtpPort = 465;
-    private String username = "manitou.mail.test@gmail.com";
-    private String password = "manitou1234";/**/
-    private String popHost = "172.25.1.30";
+    private final String popHost = "pop.gmail.com";
+    private final int popPort = 995;
+    private final String imapHost = "imap.gmail.com";
+    private final int imapPort = 993;
+    private final String smtpHost = "smtp.gmail.com";
+    private final int smtpPort = 465;
+    private final String username = "manitou.mail.test@gmail.com";
+    private final String password = "manitou1234";/**/
+    /*private String popHost = "172.25.1.30";
     private int popPort = 110;
     private String imapHost = "172.25.1.30";
     private int imapPort = 143;
@@ -141,6 +141,7 @@ public class gNetSettings
     @Override
     protected void finalize() throws Throwable
     {
+        super.finalize();
         if (smtpTransport.isConnected()) smtpTransport.close();
         if (imapConnect.isConnected()) imapConnect.close();
         if (popConnect.isConnected()) popConnect.close();

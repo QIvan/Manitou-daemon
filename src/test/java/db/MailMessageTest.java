@@ -14,7 +14,7 @@ import java.util.Arrays;
 public class MailMessageTest extends TestCase
 {
 
-    private MailMessage mm;
+    private final MailMessage mm;
 
     public MailMessageTest() throws Exception
     {

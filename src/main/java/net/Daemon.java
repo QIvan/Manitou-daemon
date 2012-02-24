@@ -67,14 +67,14 @@ public class Daemon
             msg.writeTo(System.out);
             InputStream inputStream = msg.getDataHandler().getInputStream();
 
-            int bytes_read = 0;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte data[] = new byte[1024];
 
             try {
-            while((bytes_read = inputStream.read(data)) >0)
-                baos.write(data, 0, bytes_read);
-            inputStream.close();
+                int bytes_read = 0;
+                while((bytes_read = inputStream.read(data)) >0)
+                    baos.write(data, 0, bytes_read);
+                inputStream.close();
             } catch(Exception e) {
                 e.printStackTrace();
             }
