@@ -6,16 +6,12 @@ package net;
 
 import db.ConnectionDB;
 import db.MailMessage;
-
 import javax.mail.*;
 import javax.mail.search.FlagTerm;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Enumeration;
 
 
 /**
@@ -40,50 +36,42 @@ public class Daemon
 
 
         }
-        catch (Exception ex) {
-            ex.printStackTrace();
+        catch (SQLException e) {
+            System.err.print("\n======================\n");
+            System.err.print(">>> Error in DB!");
+            System.err.print("\n======================\n");
+            e.printStackTrace();
+        }
+        catch (MessagingException e){
+            System.err.print("\n======================\n");
+            System.err.print(">>> Error in connect to server!");
+            System.err.print("\n======================\n");
+            e.printStackTrace();
+
         }
     }
 
     private static void printMessages(Message[] messages) throws
-                                                          IOException, MessagingException
+                                                           MessagingException
     {
 
         for (Message msg : messages)
         {
-            System.out.println(msg.getSubject());
-            final Enumeration allHeaders = msg.getAllHeaders();
-            while (allHeaders.hasMoreElements())
-            {
-                final Header header = (Header) allHeaders.nextElement();
-                System.out.print("Name " + header.getName());
-                System.out.println("\t Value " + header.getValue());
-            }
-            System.out.print(msg.getDisposition());
-            System.out.println(msg.getDescription());
-            //System.out.println((IMAPInputStream)msg.getContent());
-
-            System.out.print("Body: ");
-            msg.writeTo(System.out);
-            InputStream inputStream = msg.getDataHandler().getInputStream();
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            byte data[] = new byte[1024];
 
             try {
-                int bytes_read = 0;
-                while((bytes_read = inputStream.read(data)) >0)
-                    baos.write(data, 0, bytes_read);
-                inputStream.close();
-            } catch(Exception e) {
+                msg.writeTo(System.out);
+            }
+            catch (IOException e)
+            {
+                System.err.println("Message is Empty! IOExeption in writeTo");
                 e.printStackTrace();
             }
 
-            System.out.println(baos.toString());
             System.out.println("\n\n");
         }
     }
     
+
     private static void sendAllMail()
     {
         MailMessage mm = new MailMessage();
@@ -119,7 +107,8 @@ public class Daemon
         }
     }
 
-    public static void getAllUnreadMail() throws Exception
+    public static void getAllUnreadMail() throws MessagingException,
+                                                 SQLException
     {
         Store imap = gNetSettings.getInstance().getImapConnect();
         Folder folder = imap.getFolder("INBOX");

@@ -1,6 +1,7 @@
 package db;
 
 import junit.framework.TestCase;
+import utils.DeleteMails;
 import utils.NewMail;
 
 import javax.mail.Message;
@@ -31,15 +32,26 @@ public class MailMessageTest extends TestCase
 
         Statement checkAdd = ConnectionDB.createStatement();
 
-        ResultSet mailResult = checkAdd.executeQuery(
+        //TODO сделать проверку на значения
+        ResultSet mail = checkAdd.executeQuery(
                 "Select * from mail where mail_id=" + id);
-        assertTrue(mailResult.next());
-        assertFalse(mailResult.next());
+        assertTrue(mail.next());
+        assertFalse(mail.next());
 
         ResultSet status = checkAdd.executeQuery(
-                "Select * from mail_status where mail_id = " + id);
+                "Select status from mail_status where mail_id = " + id);
         assertTrue(status.next());
         assertFalse(status.next());
+
+        ResultSet body = checkAdd.executeQuery(
+                "Select * from body where mail_id = " + id);
+        assertTrue(body.next());
+        assertFalse(body.next());
+
+        ResultSet header = checkAdd.executeQuery(
+                "Select * from header where mail_id = " + id);
+        assertTrue(header.next());
+        assertFalse(header.next());
 
         checkAdd.close();
 
@@ -75,11 +87,7 @@ public class MailMessageTest extends TestCase
     public void tearDown() throws Exception
     {
         super.tearDown();
-        Statement st = ConnectionDB.createStatement();
-        st.execute("DELETE FROM body");
-        st.execute("DELETE FROM mail");
-        st.execute("DELETE FROM mail_status");
-        st.close();
+        DeleteMails.DeleteAllInDB();
     }
 
 

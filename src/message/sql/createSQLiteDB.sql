@@ -160,7 +160,7 @@ CREATE TABLE filter_expr (
     expr_id integer PRIMARY KEY NOT NULL,
     name character varying(100),
     user_lastmod integer,
-    last_update timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    last_update timestamp with time zone DEFAULT (strftime('%s','now')),
     expression text,
     direction character(1) DEFAULT 'I'
 );
@@ -168,7 +168,7 @@ CREATE TABLE filter_expr (
 CREATE TABLE filter_log (
     expr_id integer,
     mail_id integer,
-    hit_date timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+    hit_date timestamp with time zone DEFAULT (strftime('%s','now'))
 );
 
 
@@ -225,7 +225,7 @@ CREATE TABLE mail (
     toname text,
     sender_fullname text,
     subject text,
-    msg_date timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    msg_date timestamp with time zone DEFAULT (strftime('%s','now')),
     sender_date timestamp with time zone,
     mbox_id integer,
     status integer,
@@ -263,7 +263,7 @@ CREATE TABLE mail_tags (
     mail_id integer,
     tag integer,
     agent integer,
-    date_insert timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+    date_insert timestamp with time zone DEFAULT (strftime('%s','now'))
 );
 
 
@@ -287,7 +287,7 @@ CREATE TABLE non_indexable_words (
 CREATE TABLE notes (
     mail_id integer,
     note text,
-    last_changed timestamp with time zone DEFAULT CURRENT_TIMESTAMP
+    last_changed timestamp with time zone DEFAULT (strftime('%s','now'))
 );
 
 
