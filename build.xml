@@ -59,32 +59,6 @@
     <include name="**/?*.ftl"/>
   </patternset>
   
-  <!-- JDK definitions -->
-  
-  <property name="jdk.bin.1.6_openjdk" value="${jdk.home.1.6_openjdk}/bin"/>
-  <path id="jdk.classpath.1.6_openjdk">
-    <fileset dir="${jdk.home.1.6_openjdk}">
-      <include name="jre/lib/resources.jar"/>
-      <include name="jre/lib/about.jar"/>
-      <include name="jre/lib/jsse.jar"/>
-      <include name="jre/lib/charsets.jar"/>
-      <include name="jre/lib/jce.jar"/>
-      <include name="jre/lib/rt.jar"/>
-      <include name="jre/lib/rhino.jar"/>
-      <include name="jre/lib/management-agent.jar"/>
-      <include name="jre/lib/ext/sunjce_provider.jar"/>
-      <include name="jre/lib/ext/sunpkcs11.jar"/>
-      <include name="jre/lib/ext/localedata.jar"/>
-      <include name="jre/lib/ext/dnsns.jar"/>
-      <include name="jre/lib/ext/gnome-java-bridge.jar"/>
-      <include name="jre/lib/ext/pulse-java.jar"/>
-    </fileset>
-  </path>
-  
-  <property name="project.jdk.home" value="${jdk.home.1.6_openjdk}"/>
-  <property name="project.jdk.bin" value="${jdk.bin.1.6_openjdk}"/>
-  <property name="project.jdk.classpath" value="jdk.classpath.1.6_openjdk"/>
-  
   
   <!-- Project Libraries -->
   

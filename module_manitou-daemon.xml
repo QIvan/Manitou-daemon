@@ -2,9 +2,6 @@
 <project name="module_manitou-daemon" default="compile.module.manitou-daemon">
   <dirname property="module.manitou-daemon.basedir" file="${ant.file.module_manitou-daemon}"/>
   
-  <property name="module.jdk.home.manitou-daemon" value="${jdk.home.1.6_openjdk}"/>
-  <property name="module.jdk.bin.manitou-daemon" value="${jdk.bin.1.6_openjdk}"/>
-  <property name="module.jdk.classpath.manitou-daemon" value="jdk.classpath.1.6_openjdk"/>
   
   <property name="compiler.args.manitou-daemon" value="${compiler.args}"/>
   
@@ -16,7 +13,6 @@
   </path>
   
   <path id="manitou-daemon.module.production.classpath">
-    <path refid="${module.jdk.classpath.manitou-daemon}"/>
     <path refid="library.junit4.classpath"/>
     <path refid="library.javamail-1.4.4.classpath"/>
     <path refid="library.sqlitejdbc-v056.classpath"/>
@@ -34,7 +30,6 @@
   </path>
   
   <path id="manitou-daemon.module.classpath">
-    <path refid="${module.jdk.classpath.manitou-daemon}"/>
     <pathelement location="${manitou-daemon.output.dir}"/>
     <path refid="library.junit4.classpath"/>
     <path refid="library.javamail-1.4.4.classpath"/>
@@ -81,7 +76,7 @@
   
   <target name="compile.module.manitou-daemon.production" description="Compile module manitou-daemon; production classes">
     <mkdir dir="${manitou-daemon.output.dir}"/>
-    <javac destdir="${manitou-daemon.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.manitou-daemon}/javac">
+    <javac destdir="${manitou-daemon.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
       <compilerarg line="${compiler.args.manitou-daemon}"/>
       <bootclasspath refid="manitou-daemon.module.bootclasspath"/>
       <classpath refid="manitou-daemon.module.production.classpath"/>
@@ -103,7 +98,7 @@
   
   <target name="compile.module.manitou-daemon.tests" depends="compile.module.manitou-daemon.production" description="compile module manitou-daemon; test classes" unless="skip.tests">
     <mkdir dir="${manitou-daemon.testoutput.dir}"/>
-    <javac destdir="${manitou-daemon.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.manitou-daemon}/javac">
+    <javac destdir="${manitou-daemon.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
       <compilerarg line="${compiler.args.manitou-daemon}"/>
       <bootclasspath refid="manitou-daemon.module.bootclasspath"/>
       <classpath refid="manitou-daemon.module.classpath"/>
