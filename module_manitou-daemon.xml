@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_manitou-daemon" default="compile.module.manitou-daemon">
+  <dirname property="module.manitou-daemon.basedir" file="${ant.file.module_manitou-daemon}"/>
+  
+  <property name="module.jdk.home.manitou-daemon" value="${jdk.home.1.6_openjdk}"/>
+  <property name="module.jdk.bin.manitou-daemon" value="${jdk.bin.1.6_openjdk}"/>
+  <property name="module.jdk.classpath.manitou-daemon" value="jdk.classpath.1.6_openjdk"/>
+  
+  <property name="compiler.args.manitou-daemon" value="${compiler.args}"/>
+  
+  <property name="manitou-daemon.output.dir" value="${module.manitou-daemon.basedir}/out/production/manitou-daemon"/>
+  <property name="manitou-daemon.testoutput.dir" value="${module.manitou-daemon.basedir}/out/test/manitou-daemon"/>
+  
+  <path id="manitou-daemon.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="manitou-daemon.module.production.classpath">
+    <path refid="${module.jdk.classpath.manitou-daemon}"/>
+    <path refid="library.junit4.classpath"/>
+    <path refid="library.javamail-1.4.4.classpath"/>
+    <path refid="library.sqlitejdbc-v056.classpath"/>
+    <path refid="library.postgresql-9.1-901.jdbc4.classpath"/>
+    <path refid="library.jcommander-git20120129.classpath"/>
+  </path>
+  
+  <path id="manitou-daemon.runtime.production.module.classpath">
+    <pathelement location="${manitou-daemon.output.dir}"/>
+    <path refid="library.junit4.classpath"/>
+    <path refid="library.javamail-1.4.4.classpath"/>
+    <path refid="library.sqlitejdbc-v056.classpath"/>
+    <path refid="library.postgresql-9.1-901.jdbc4.classpath"/>
+    <path refid="library.jcommander-git20120129.classpath"/>
+  </path>
+  
+  <path id="manitou-daemon.module.classpath">
+    <path refid="${module.jdk.classpath.manitou-daemon}"/>
+    <pathelement location="${manitou-daemon.output.dir}"/>
+    <path refid="library.junit4.classpath"/>
+    <path refid="library.javamail-1.4.4.classpath"/>
+    <path refid="library.sqlitejdbc-v056.classpath"/>
+    <path refid="library.postgresql-9.1-901.jdbc4.classpath"/>
+    <path refid="library.jcommander-git20120129.classpath"/>
+  </path>
+  
+  <path id="manitou-daemon.runtime.module.classpath">
+    <pathelement location="${manitou-daemon.testoutput.dir}"/>
+    <pathelement location="${manitou-daemon.output.dir}"/>
+    <path refid="library.junit4.classpath"/>
+    <path refid="library.javamail-1.4.4.classpath"/>
+    <path refid="library.sqlitejdbc-v056.classpath"/>
+    <path refid="library.postgresql-9.1-901.jdbc4.classpath"/>
+    <path refid="library.jcommander-git20120129.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.manitou-daemon">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.manitou-daemon">
+    <patternset refid="excluded.from.module.manitou-daemon"/>
+  </patternset>
+  
+  <path id="manitou-daemon.module.sourcepath">
+    <dirset dir="${module.manitou-daemon.basedir}">
+      <include name="src/message/sql"/>
+      <include name="src/main/java"/>
+    </dirset>
+  </path>
+  
+  <path id="manitou-daemon.module.test.sourcepath">
+    <dirset dir="${module.manitou-daemon.basedir}">
+      <include name="src/test/java"/>
+      <include name="src/test"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.manitou-daemon" depends="compile.module.manitou-daemon.production,compile.module.manitou-daemon.tests" description="Compile module manitou-daemon"/>
+  
+  <target name="compile.module.manitou-daemon.production" depends="register.custom.compilers" description="Compile module manitou-daemon; production classes">
+    <mkdir dir="${manitou-daemon.output.dir}"/>
+    <javac2 destdir="${manitou-daemon.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.manitou-daemon}/javac">
+      <compilerarg line="${compiler.args.manitou-daemon}"/>
+      <bootclasspath refid="manitou-daemon.module.bootclasspath"/>
+      <classpath refid="manitou-daemon.module.production.classpath"/>
+      <src refid="manitou-daemon.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.manitou-daemon"/>
+    </javac2>
+    
+    <copy todir="${manitou-daemon.output.dir}">
+      <fileset dir="${module.manitou-daemon.basedir}/src/message/sql">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.manitou-daemon.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.manitou-daemon.tests" depends="register.custom.compilers,compile.module.manitou-daemon.production" description="compile module manitou-daemon; test classes" unless="skip.tests">
+    <mkdir dir="${manitou-daemon.testoutput.dir}"/>
+    <javac2 destdir="${manitou-daemon.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.manitou-daemon}/javac">
+      <compilerarg line="${compiler.args.manitou-daemon}"/>
+      <bootclasspath refid="manitou-daemon.module.bootclasspath"/>
+      <classpath refid="manitou-daemon.module.classpath"/>
+      <src refid="manitou-daemon.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.manitou-daemon"/>
+    </javac2>
+    
+    <copy todir="${manitou-daemon.testoutput.dir}">
+      <fileset dir="${module.manitou-daemon.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.manitou-daemon.basedir}/src/test">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.manitou-daemon" description="cleanup module">
+    <delete dir="${manitou-daemon.output.dir}"/>
+    <delete dir="${manitou-daemon.testoutput.dir}"/>
+  </target>
+</project>
