@@ -71,10 +71,16 @@ public class MailMessageTest extends TestCase
         Message messageOfDB = mm.createMessageOfDB(id);
 
         // check Subject
+        System.out.println("Subject of DB: " + messageOfDB.getSubject() +
+                           "\nSubject test: " + testMessage.getSubject());
         assertTrue(messageOfDB.getSubject().equals(testMessage.getSubject()));
         // check From Address
+        System.out.println("From of DB: " + messageOfDB.getFrom() +
+                           "\nFrom test: " + testMessage.getFrom());
         assertTrue(Arrays.equals(messageOfDB.getFrom(), testMessage.getFrom()));
         // check Date
+        System.out.println("Date of DB: " + messageOfDB.getSentDate() +
+                           "\nDate test: " + testMessage.getSentDate());
         assertTrue(messageOfDB.getSentDate().equals(testMessage.getSentDate()));
         // TODO сделать проверку на тело сообщения.
 

@@ -6,6 +6,7 @@ package net;
 
 import db.ConnectionDB;
 import db.MailMessage;
+
 import javax.mail.*;
 import javax.mail.search.FlagTerm;
 import java.io.IOException;
@@ -34,7 +35,6 @@ public class Daemon
             getAllUnreadMail();
 
 
-
         }
         catch (SQLException e) {
             System.err.print("\n======================\n");
@@ -47,7 +47,13 @@ public class Daemon
             System.err.print(">>> Error in connect to server!");
             System.err.print("\n======================\n");
             e.printStackTrace();
-
+        }
+        catch (Exception e)
+        {
+            System.err.print("\n======================\n");
+            System.err.print(">>> Unknown error!");
+            System.err.print("\n======================\n");
+            e.printStackTrace();
         }
     }
 
