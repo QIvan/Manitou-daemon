@@ -29,8 +29,8 @@ public class gNetSettings
     private int    smtpPort;
     /*private String username = "manitou.mail.test@gmail.com";
     private String password = "manitou1234";/**/
-    private String username = "manitou.mail.test";
-    private String password = "qwertyui";  /**/
+    private String username;// = "manitou.mail.test";
+    private String password;// = "qwertyui";  /**/
 
 
 
@@ -62,6 +62,8 @@ public class gNetSettings
         imapPort = Integer.parseInt(bundle.getString("imapPort"));
         smtpHost = bundle.getString("smtpHost");
         smtpPort = Integer.parseInt(bundle.getString("smtpPort"));
+        username = bundle.getString("username");
+        password = bundle.getString("password");
 
     }
 
