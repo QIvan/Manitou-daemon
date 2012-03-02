@@ -11,6 +11,7 @@ import javax.mail.*;
 import javax.mail.search.FlagTerm;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 
@@ -34,7 +35,6 @@ public class Daemon
             getAllUnreadMail();
 
 
-
         }
         catch (SQLException e) {
             System.err.print("\n======================\n");
@@ -47,7 +47,13 @@ public class Daemon
             System.err.print(">>> Error in connect to server!");
             System.err.print("\n======================\n");
             e.printStackTrace();
-
+        }
+        catch (Exception e)
+        {
+            System.err.print("\n======================\n");
+            System.err.print(">>> Unknown error!");
+            System.err.print("\n======================\n");
+            e.printStackTrace();
         }
     }
 
@@ -57,6 +63,7 @@ public class Daemon
 
         for (Message msg : messages)
         {
+
             try {
                 msg.writeTo(System.out);
             }
@@ -70,24 +77,39 @@ public class Daemon
         }
     }
     
-    private static void sendAllMail() throws MessagingException,
-                                             SQLException
+
+    private static void sendAllMail()
     {
         MailMessage mm = new MailMessage();
         ArrayList<Integer> messagesToSend = mm.getMessagesToSend();
         System.out.println(messagesToSend);
         for (Integer id : messagesToSend)
         {
-            Message message = mm.createMessageOfDB(id);
-            gNetSettings.getInstance().getSmtpTransport().sendMessage(message,
-                                                                      message.getAllRecipients());
-            ConnectionDB.executeUpdate(
-                    "UPDATE mail_status SET status=status & ~128 where mail_id = "
-                    + id
-            );
-            ConnectionDB.executeUpdate(
-                    "UPDATE mail SET status=status & ~128 where mail_id = "
-                    + id);
+            try {
+                Message message = mm.createMessageOfDB(id);
+                final Statement st = ConnectionDB.createStatement();
+                try{
+                    st.executeUpdate("BEGIN");
+                    st.executeUpdate(
+                            "UPDATE mail_status SET status=status & ~128 where mail_id = "
+                            + id
+                    );
+                    st.executeUpdate(
+                            "UPDATE mail SET status=status & ~128 where mail_id = "
+                            + id);
+                    System.out.println(message.getAllRecipients()[0].toString());
+                    gNetSettings.getInstance().getSmtpTransport().sendMessage(
+                            message,
+                            message.getAllRecipients());
+                    st.executeUpdate("COMMIT");
+                }
+                catch (MessagingException e)
+                {
+                    e.printStackTrace();
+                    st.executeUpdate("ROLLBACK");
+                }
+                st.close();
+            } catch (SQLException e){ e.printStackTrace();}
         }
     }
 

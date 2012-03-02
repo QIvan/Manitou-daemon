@@ -2,14 +2,13 @@ package db;
 
 import net.ParseMessage;
 
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,8 +19,17 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/* TODO refactor! Явно можно разбить на 2 класса:
+   один собирает сообщение из базы,
+   другой записывает новое в базу
+*/
 public class MailMessage
 {
+    private static final int FROM = 1;
+    private static final int TO = 2;
+    private static final int CC = 3;
+    private static final int REPLY_TO = 4;
+    private static final int BCC = 5;
     private  Connection bd;
 
     public MailMessage()
@@ -41,9 +49,9 @@ public class MailMessage
      *
      * @param msg looks like a message
      * @return id Message from table "mail"
-     * @throws Exception looks like SQLException
      */
-    public int insertMessageInDB(Message msg)
+    // TODO refactor!
+    public int insertMessageInDB(final Message msg)
             throws SQLException, MessagingException
     {
 
@@ -85,6 +93,7 @@ public class MailMessage
             System.out.println(queryHeader);
             st.execute(queryHeader);
 
+            insertMailAdresses(msg, mailID);
         }
         catch (IOException e)
         {
@@ -97,34 +106,60 @@ public class MailMessage
         return mailID;
 
     }
-
-
-
-
-    private String getTextMail(Message msg)
+    
+    private void insertMailAdresses (final Message msg, final int id)
     {
-        InputStream inputStream ;
+        //я знаю что быдлокод, зато просто и понятно )
         try
         {
-            inputStream = msg.getDataHandler().getInputStream();
+            final Address[] from = msg.getFrom();
+            for (int i = 0; i < from.length; ++i)
+                insertAddress(from[i], id, FROM, i);
+
+            final Address[] recipientsTo = msg.getRecipients(Message.RecipientType.TO);
+            for (int i = 0; i < recipientsTo.length; ++i)
+            {
+                insertAddress(recipientsTo[i], id, TO, i);
+            }
+
+            final Address[] recipientsCC = msg.getRecipients(Message.RecipientType.CC);
+            for (int i = 0; i < recipientsCC.length; ++i)
+            {
+                insertAddress(recipientsCC[i], id, CC, i);
+            }
+
+            final Address[] recipientsBCC = msg.getRecipients(Message.RecipientType.BCC);
+            for (int i = 0; i < recipientsBCC.length; ++i)
+            {
+                insertAddress(recipientsBCC[i], id, BCC, i);
+            }
+
         }
         catch (Exception e)
         {
-            return null;
-        }
-
-        int bytes_read = 0;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte data[] = new byte[1024];
-
-        try {
-        while((bytes_read = inputStream.read(data)) >0)
-            baos.write(data, 0, bytes_read);
-        inputStream.close();
-        } catch(Exception e) {
             e.printStackTrace();
         }
-        return baos.toString();
+
+    }
+
+    private void insertAddress (final Address addr, final int mailId,
+                                final int type, final int pos)
+            throws SQLException
+    {
+        //проверить есть ли такой адрес в Базе
+        final Statement st = ConnectionDB.createStatement();
+        final ResultSet emailIdRs = st.executeQuery(
+                "Select addr_id from addresses where email_addr='"
+                + addr.toString() + "'");
+
+        //если нет - добавить в таблицу addresses
+        if (!emailIdRs.next())
+        {
+              //st.execute("Insert Into addresses Values ()");
+        }
+        //если есть - изменить nb_sent_to и last_sent_to или last_recv_from (в зависиомсти от типа)
+        //взять addr_id и записать в mail_addresses с нужным типом
+
     }
 
 
@@ -132,7 +167,7 @@ public class MailMessage
      * @param id id сообщения в БД
      * @return возвращает сообщение в виде класса Message по переданному id
      */
-    public Message createMessageOfDB(int id)
+    public Message createMessageOfDB(final int id)
     {
         Message result = new MimeMessage(Session.getDefaultInstance(new Properties()));
         try
@@ -143,21 +178,21 @@ public class MailMessage
                     + id);
             if (headerRs.next())
             {
-                InternetAddress addressTo = new InternetAddress(headerRs.getString(1));
-                result.setFrom(addressTo);
-                result.addRecipient(Message.RecipientType.TO, addressTo);
+                //InternetAddress addressFrom = new InternetAddress(headerRs.getString(1));
+                //result.setFrom(addressFrom);
                 result.setSubject(headerRs.getString(2));
                 result.setSentDate(headerRs.getTimestamp(3));
             }
 
-            ResultSet bodyRs = infoSt.executeQuery(
-                               "Select bodytext from body where mail_id=" + id);
+            addRecipientInMessage(result, id);
 
+            ResultSet bodyRs = infoSt.executeQuery(
+                    "Select bodytext from body where mail_id=" + id);
             if (bodyRs.next())
                 result.setText(bodyRs.getString(1));
 
+            result.saveChanges();
             infoSt.close();
-
         }
         catch (Exception ex)
         {
@@ -166,6 +201,57 @@ public class MailMessage
                                                               ex);
         }
         return result;
+    }
+
+    private void addRecipientInMessage (Message msg, final int id)
+            throws SQLException
+    {
+        final Statement stAddresses = ConnectionDB.createStatement();
+        ResultSet addressesRs = stAddresses.executeQuery(
+                "Select addr_id, addr_type from mail_addresses"
+                + " where mail_id=" + id);
+
+        final Statement stEmails = ConnectionDB.createStatement();
+        while (addressesRs.next())
+        {
+            final ResultSet emailsRs = stEmails.executeQuery(
+                    "SELECT email_addr from addresses where addr_id="
+                    + addressesRs.getInt(1));
+
+            try
+            {
+                final InternetAddress email = new InternetAddress(emailsRs.getString(1));
+                final int addr_type = addressesRs.getInt(2);
+                switch (addr_type)
+                {
+                    case FROM:
+                        msg.setFrom(email);
+                        break;
+                    case TO:
+                        msg.addRecipient(Message.RecipientType.TO, email);
+                        break;
+                    case CC:
+                        msg.addRecipient(Message.RecipientType.CC, email);
+                        break;
+                    case REPLY_TO:
+                        InternetAddress replyToAddr[] = {email};
+                        msg.setReplyTo(replyToAddr);
+                        break;
+
+                    case BCC:
+                        msg.addRecipient(Message.RecipientType.BCC, email);
+                        break;
+                }
+            }
+            catch (MessagingException e)
+            {
+                e.printStackTrace();
+                System.err.println("Bad e-mail addresses!");
+            }
+        }
+        stEmails.close();
+        stAddresses.close();
+
     }
 
 

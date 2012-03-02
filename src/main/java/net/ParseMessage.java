@@ -130,4 +130,9 @@ public class ParseMessage
 
         return result;
     }
+
+    public Message getMsg()
+    {
+        return msg;
+    }
 }
