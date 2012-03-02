@@ -13,39 +13,33 @@
   </path>
   
   <path id="manitou-daemon.module.production.classpath">
-    <path refid="library.junit4.classpath"/>
     <path refid="library.javamail-1.4.4.classpath"/>
-    <path refid="library.sqlitejdbc-v056.classpath"/>
-    <path refid="library.postgresql-9.1-901.jdbc4.classpath"/>
     <path refid="library.jcommander-git20120129.classpath"/>
+    <path refid="library.sqlitejdbc-v056.classpath"/>
   </path>
   
   <path id="manitou-daemon.runtime.production.module.classpath">
     <pathelement location="${manitou-daemon.output.dir}"/>
-    <path refid="library.junit4.classpath"/>
     <path refid="library.javamail-1.4.4.classpath"/>
-    <path refid="library.sqlitejdbc-v056.classpath"/>
-    <path refid="library.postgresql-9.1-901.jdbc4.classpath"/>
     <path refid="library.jcommander-git20120129.classpath"/>
+    <path refid="library.sqlitejdbc-v056.classpath"/>
   </path>
   
   <path id="manitou-daemon.module.classpath">
     <pathelement location="${manitou-daemon.output.dir}"/>
-    <path refid="library.junit4.classpath"/>
     <path refid="library.javamail-1.4.4.classpath"/>
-    <path refid="library.sqlitejdbc-v056.classpath"/>
-    <path refid="library.postgresql-9.1-901.jdbc4.classpath"/>
+    <path refid="library.junit4.classpath"/>
     <path refid="library.jcommander-git20120129.classpath"/>
+    <path refid="library.sqlitejdbc-v056.classpath"/>
   </path>
   
   <path id="manitou-daemon.runtime.module.classpath">
     <pathelement location="${manitou-daemon.testoutput.dir}"/>
     <pathelement location="${manitou-daemon.output.dir}"/>
-    <path refid="library.junit4.classpath"/>
     <path refid="library.javamail-1.4.4.classpath"/>
-    <path refid="library.sqlitejdbc-v056.classpath"/>
-    <path refid="library.postgresql-9.1-901.jdbc4.classpath"/>
+    <path refid="library.junit4.classpath"/>
     <path refid="library.jcommander-git20120129.classpath"/>
+    <path refid="library.sqlitejdbc-v056.classpath"/>
   </path>
   
   
@@ -67,7 +61,6 @@
   <path id="manitou-daemon.module.test.sourcepath">
     <dirset dir="${module.manitou-daemon.basedir}">
       <include name="src/test/java"/>
-      <include name="src/test"/>
     </dirset>
   </path>
   
@@ -108,10 +101,6 @@
     
     <copy todir="${manitou-daemon.testoutput.dir}">
       <fileset dir="${module.manitou-daemon.basedir}/src/test/java">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-      <fileset dir="${module.manitou-daemon.basedir}/src/test">
         <patternset refid="compiler.resources"/>
         <type type="file"/>
       </fileset>

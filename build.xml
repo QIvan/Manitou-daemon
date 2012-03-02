@@ -70,14 +70,6 @@
     <pathelement location="${basedir}/ext/lib/jcommander-git20120129.jar"/>
   </path>
   
-  <path id="library.junit4.classpath">
-    <pathelement location="${basedir}/../../../../usr/share/java/junit4.jar"/>
-  </path>
-  
-  <path id="library.postgresql-9.1-901.jdbc4.classpath">
-    <pathelement location="${basedir}/ext/lib/postgresql-9.1-901.jdbc4.jar"/>
-  </path>
-  
   <path id="library.sqlitejdbc-v056.classpath">
     <pathelement location="${basedir}/ext/lib/sqlitejdbc-v056.jar"/>
   </path>
@@ -97,29 +89,34 @@
     <!-- Perform any build initialization in this target -->
   </target>
   
-  <target name="clean" depends="clean.module.manitou-daemon" description="cleanup all"/>
+  <target name="clean" depends="clean.module.manitou-daemon, clean.artifact.manitou-daemon:jar" description="cleanup all"/>
   
   <target name="build.modules" depends="init, clean, compile.module.manitou-daemon" description="build all modules"/>
   
   <target name="init.artifacts">
     <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
-    <property name="artifact.output.manitoujar" value="${basedir}/out/artifacts/ManitouJar"/>
+    <property name="artifact.output.manitou-daemon:jar" value="${basedir}/out/artifacts/manitou_daemon_jar"/>
     <mkdir dir="${artifacts.temp.dir}"/>
-    <property name="temp.jar.path.ManitouJar.jar" value="${artifacts.temp.dir}/ManitouJar.jar"/>
+    <property name="temp.jar.path.manitou_daemon.jar" value="${artifacts.temp.dir}/manitou_daemon.jar"/>
   </target>
   
-  <target name="artifact.manitoujar" depends="init.artifacts" description="Build &#39;ManitouJar&#39; artifact">
-    <property name="artifact.temp.output.manitoujar" value="${artifacts.temp.dir}/ManitouJar"/>
-    <mkdir dir="${artifact.temp.output.manitoujar}"/>
-    <jar destfile="${temp.jar.path.ManitouJar.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain"/>
-    <copy file="${temp.jar.path.ManitouJar.jar}" tofile="${artifact.temp.output.manitoujar}/ManitouJar.jar"/>
+  <target name="clean.artifact.manitou-daemon:jar" description="clean manitou-daemon:jar artifact output">
+    <delete dir="${artifact.output.manitou-daemon:jar}"/>
   </target>
   
-  <target name="build.all.artifacts" depends="artifact.manitoujar" description="Build all artifacts">
-    <mkdir dir="${artifact.output.manitoujar}"/>
-    <copy todir="${artifact.output.manitoujar}">
-      <fileset dir="${artifact.temp.output.manitoujar}"/>
-    </copy>
+  <target name="artifact.manitou-daemon:jar" depends="init.artifacts, compile.module.manitou-daemon" description="Build &#39;manitou-daemon:jar&#39; artifact">
+    <mkdir dir="${artifact.output.manitou-daemon:jar}"/>
+    <jar destfile="${temp.jar.path.manitou_daemon.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset file="${basedir}/src/main/resources/META-INF/MANIFEST.MF" prefix="META-INF"/>
+      <zipfileset dir="${manitou-daemon.output.dir}"/>
+    </jar>
+    <copy file="${temp.jar.path.manitou_daemon.jar}" tofile="${artifact.output.manitou-daemon:jar}/manitou_daemon.jar"/>
+    <copy file="${basedir}/ext/lib/javamail-1.4.4.jar" tofile="${artifact.output.manitou-daemon:jar}/javamail-1.4.4.jar"/>
+    <copy file="${basedir}/ext/lib/jcommander-git20120129.jar" tofile="${artifact.output.manitou-daemon:jar}/jcommander-git20120129.jar"/>
+    <copy file="${basedir}/ext/lib/sqlitejdbc-v056.jar" tofile="${artifact.output.manitou-daemon:jar}/sqlitejdbc-v056.jar"/>
+  </target>
+  
+  <target name="build.all.artifacts" depends="artifact.manitou-daemon:jar" description="Build all artifacts">
     
     <!-- Delete temporary files -->
     <delete dir="${artifacts.temp.dir}"/>
