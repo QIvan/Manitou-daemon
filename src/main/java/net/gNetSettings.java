@@ -55,7 +55,7 @@ public class gNetSettings
 
     private gNetSettings()
     {
-        ResourceBundle bundle = ResourceBundle.getBundle("properties.gNetSettings");
+        ResourceBundle bundle = ResourceBundle.getBundle("properties." + this.getClass().getName());
         popHost = bundle.getString("popHost");
         popPort = Integer.parseInt(bundle.getString("popPort"));
         imapHost = bundle.getString("imapHost");

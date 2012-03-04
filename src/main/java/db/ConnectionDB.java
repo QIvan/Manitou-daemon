@@ -3,6 +3,7 @@ package db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,14 +13,16 @@ public class ConnectionDB
     // ReadMe: for postgreSQL
     //  "org.postgresql.Driver",
     //  "jdbc:postgresql:test"
-    private String classForName = "org.sqlite.JDBC";
-    private String driverManager = "jdbc:sqlite:DB/MsgDB";
+    private String classForName;// = "org.sqlite.JDBC";
+    private String driverManager;// = "jdbc:sqlite:DB/MsgDB";
     private Connection connect;
 
     private ConnectionDB()
     {
-//        this.setClassForName(classForName);
-//        this.setDriverManager(driverManager);
+        ResourceBundle bundle = ResourceBundle.getBundle("properties." + this.getClass().getName());
+        classForName = bundle.getString("classForName");
+        driverManager = bundle.getString("driverManager") + ":"
+                        + bundle.getString("path") +  bundle.getString("dbName");
     }
 
     public static ConnectionDB getInstance()
@@ -34,8 +37,8 @@ public class ConnectionDB
     {
         if (connect == null)
         {
-            Class.forName(this.classForName);
             DriverManager.setLogStream(System.out);
+            Class.forName(this.classForName);
             this.connect = DriverManager.getConnection(this.driverManager);
         }
         return this.connect;

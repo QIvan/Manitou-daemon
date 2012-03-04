@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.ResourceBundle;
+import java.util.Properties;
 
 
 /**
@@ -30,12 +30,10 @@ public class Daemon
     public static void main(String[] args)
     {
 
-            ResourceBundle bundle = ResourceBundle.getBundle("properties.gNetSettings");
-            System.out.print(bundle.getString("popHost"));
-
-
-             /*
+        javax.mail.Session.getDefaultInstance(new Properties());
         try {
+            ConnectionDB.getInstance().getConnect();
+            System.out.print("HEllo \n");
             sendAllMail();
             getAllUnreadMail();
 
@@ -59,7 +57,7 @@ public class Daemon
             System.err.print(">>> Unknown error!");
             System.err.print("\n======================\n");
             e.printStackTrace();
-        }  */
+        }
     }
 
     private static void printMessages(Message[] messages) throws
