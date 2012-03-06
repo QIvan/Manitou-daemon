@@ -109,31 +109,12 @@ public class MailMessage
     
     private void insertMailAdresses (final Message msg, final int id)
     {
-        //я знаю что быдлокод, зато просто и понятно )
         try
         {
-            final Address[] from = msg.getFrom();
-            for (int i = 0; i < from.length; ++i)
-                insertAddress(from[i], id, FROM, i);
-
-            final Address[] recipientsTo = msg.getRecipients(Message.RecipientType.TO);
-            for (int i = 0; i < recipientsTo.length; ++i)
-            {
-                insertAddress(recipientsTo[i], id, TO, i);
-            }
-
-            final Address[] recipientsCC = msg.getRecipients(Message.RecipientType.CC);
-            for (int i = 0; i < recipientsCC.length; ++i)
-            {
-                insertAddress(recipientsCC[i], id, CC, i);
-            }
-
-            final Address[] recipientsBCC = msg.getRecipients(Message.RecipientType.BCC);
-            for (int i = 0; i < recipientsBCC.length; ++i)
-            {
-                insertAddress(recipientsBCC[i], id, BCC, i);
-            }
-
+            insertAddress(msg.getFrom(), id, FROM);
+            insertAddress(msg.getRecipients(Message.RecipientType.TO), id, TO);
+            insertAddress(msg.getRecipients(Message.RecipientType.CC), id, CC);
+            insertAddress(msg.getRecipients(Message.RecipientType.BCC), id, BCC);
         }
         catch (Exception e)
         {
@@ -142,24 +123,30 @@ public class MailMessage
 
     }
 
-    private void insertAddress (final Address addr, final int mailId,
-                                final int type, final int pos)
+    private void insertAddress (final Address addrs[], final int mailId,
+                                final int type)
             throws SQLException
     {
-        //проверить есть ли такой адрес в Базе
+        if (addrs == null)
+            return;
+
         final Statement st = ConnectionDB.createStatement();
-        final ResultSet emailIdRs = st.executeQuery(
-                "Select addr_id from addresses where email_addr='"
-                + addr.toString() + "'");
-
-        //если нет - добавить в таблицу addresses
-        if (!emailIdRs.next())
+        for (int i = 0; i<addrs.length; ++i)
         {
-              //st.execute("Insert Into addresses Values ()");
-        }
-        //если есть - изменить nb_sent_to и last_sent_to или last_recv_from (в зависиомсти от типа)
-        //взять addr_id и записать в mail_addresses с нужным типом
+                //проверить есть ли такой адрес в Базе
+            final ResultSet emailIdRs = st.executeQuery(
+                    "Select addr_id from addresses where email_addr='"
+                    + addrs[i].toString() + "'");
 
+            //если нет - добавить в таблицу addresses
+            if (!emailIdRs.next())
+            {
+                  //st.execute("Insert Into addresses Values ()");
+            }
+            //если есть - изменить nb_sent_to и last_sent_to или last_recv_from (в зависиомсти от типа)
+            //взять addr_id и записать в mail_addresses с нужным типом
+        }
+        st.close();
     }
 
 
@@ -178,8 +165,6 @@ public class MailMessage
                     + id);
             if (headerRs.next())
             {
-                //InternetAddress addressFrom = new InternetAddress(headerRs.getString(1));
-                //result.setFrom(addressFrom);
                 result.setSubject(headerRs.getString(2));
                 result.setSentDate(headerRs.getTimestamp(3));
             }
