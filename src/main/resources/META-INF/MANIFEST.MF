@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-Class-Path: javamail.jar
+Class-Path: javamail-1.4.4.jar jcommander-git20120129.jar
 Main-Class: org.manitou.daemon.application.Daemon
 

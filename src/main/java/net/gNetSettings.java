@@ -13,6 +13,7 @@ import com.sun.mail.smtp.SMTPTransport;
 
 import javax.mail.*;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 /**
  * @author ivan
@@ -20,22 +21,18 @@ import java.util.Properties;
 public class gNetSettings
 {
     private static gNetSettings impl = null;
-    private final String popHost = "pop.gmail.com";
-    private final int popPort = 995;
-    private final String imapHost = "imap.gmail.com";
-    private final int imapPort = 993;
-    private final String smtpHost = "smtp.gmail.com";
-    private final int smtpPort = 465;
-    private final String username = "manitou.mail.test@gmail.com";
-    private final String password = "manitou1234";/**/
-    /*private String popHost = "172.25.1.30";
-    private int popPort = 110;
-    private String imapHost = "172.25.1.30";
-    private int imapPort = 143;
-    private String smtpHost = "172.25.1.30";
-    private int smtpPort = 25;
-    private String username = "manitou.mail.test";
-    private String password = "qwertyui";  /**/
+    private String popHost;
+    private int    popPort;
+    private String   imapHost;
+    private int      imapPort;
+    private String smtpHost;
+    private int    smtpPort;
+    /*private String username = "manitou.mail.test@gmail.com";
+    private String password = "manitou1234";/**/
+    private String username;// = "manitou.mail.test";
+    private String password;// = "qwertyui";  /**/
+
+
 
 
     private Store popConnect = null;
@@ -56,7 +53,19 @@ public class gNetSettings
         return impl;
     }
 
-    private gNetSettings() { }
+    private gNetSettings()
+    {
+        ResourceBundle bundle = ResourceBundle.getBundle("properties." + this.getClass().getName());
+        popHost = bundle.getString("popHost");
+        popPort = Integer.parseInt(bundle.getString("popPort"));
+        imapHost = bundle.getString("imapHost");
+        imapPort = Integer.parseInt(bundle.getString("imapPort"));
+        smtpHost = bundle.getString("smtpHost");
+        smtpPort = Integer.parseInt(bundle.getString("smtpPort"));
+        username = bundle.getString("username");
+        password = bundle.getString("password");
+
+    }
 
     /*public String getHost()
     {

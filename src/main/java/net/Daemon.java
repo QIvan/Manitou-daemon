@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Properties;
 
 
 /**
@@ -29,8 +30,10 @@ public class Daemon
     public static void main(String[] args)
     {
 
-
+        javax.mail.Session.getDefaultInstance(new Properties());
         try {
+            ConnectionDB.getInstance().getConnect();
+            System.out.print("HEllo \n");
             sendAllMail();
             getAllUnreadMail();
 

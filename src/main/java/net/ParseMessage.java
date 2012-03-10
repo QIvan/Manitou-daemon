@@ -65,6 +65,7 @@ public class ParseMessage
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             return "Parse Error";
         }
     }
@@ -75,6 +76,7 @@ public class ParseMessage
             return msg.getSubject();
         } catch (Exception e)
         {
+            e.printStackTrace();
             return "";
         }
     }
@@ -88,6 +90,7 @@ public class ParseMessage
         }
         catch (MessagingException e)
         {
+            e.printStackTrace();
             return "";
         }
     }
